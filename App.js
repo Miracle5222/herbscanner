@@ -1,31 +1,66 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Image, View, Platform } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import React, { useState } from "react";
+import { Button, Image, View } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
-export default function ImagePickerExample() {
-  const [image, setImage] = useState(null);
-
+export default function App() {
+  const [herbdata, setHerbData] = useState([]);
+  const [image, setImage] = useState("");
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
-    
-
-    console.log(result);
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+      uploadImage(result.assets[0].uri);
+    }
+  };
+
+  const uploadImage = async (uri) => {
+    const formData = new FormData();
+    formData.append("image", {
+      uri,
+      name: "image.jpg",
+      type: "image/jpeg",
+    });
+
+    try {
+      let response = await fetch(
+        "https://44be-110-54-226-145.ngrok-free.app/image",
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log(
+          "Image uploaded successfully:",
+          responseData.data.results[0].score
+        );
+        setHerbData(responseData.data.results);
+      } else {
+        console.error("Error uploading image:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
     }
   };
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Button title="Pick an image from camera roll" onPress={pickImage} />
-      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-    </View>
+    <>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <Button title="Pick an image from camera roll" onPress={pickImage} />
+        {image && (
+          <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
+        )}
+      </View>
+    </>
   );
 }
