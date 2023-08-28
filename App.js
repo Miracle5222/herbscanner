@@ -1,66 +1,61 @@
-import React, { useState } from "react";
-import { Button, Image, View } from "react-native";
-import * as ImagePicker from "expo-image-picker";
+import { StyleSheet, Text, View } from "react-native";
+import React, { useLayoutEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+
+//navigation
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+//screens
+import TabScreen from "./screens/TabScreen";
+import LandingScreen from "./screens/LandingScreen";
+//redux
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
+//redux accessor
+import { useSelector, useDispatch } from "react-redux";
+import TestScreen from "./Test/CameraTest";
+import ScanScreen from "./screens/Scan";
+
+const Stack = createNativeStackNavigator();
+
+const Navigator = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="LandingScreen"
+        screenOptions={{
+          headerShown: false,
+          headerStyle: {
+            backgroundColor: "#608246",
+          },
+          headerTitleStyle: {
+            fontWeight: "300",
+            fontSize: 18,
+          },
+          headerShadowVisible: false,
+          headerTintColor: "#ffffff", //color of title
+        }}
+      >
+    
+        <Stack.Screen name="LandingScreen" component={LandingScreen} />
+        <Stack.Screen name="TabScreen" component={TabScreen} />
+        {/* <Stack.Screen name="TestScreen" component={TestScreen} /> */}
+        <Stack.Screen name="ScanScreen" component={ScanScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
 
 export default function App() {
-  const [herbdata, setHerbData] = useState([]);
-  const [image, setImage] = useState("");
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-      uploadImage(result.assets[0].uri);
-    }
-  };
-
-  const uploadImage = async (uri) => {
-    const formData = new FormData();
-    formData.append("image", {
-      uri,
-      name: "image.jpg",
-      type: "image/jpeg",
-    });
-
-    try {
-      let response = await fetch(
-        "https://44be-110-54-226-145.ngrok-free.app/image",
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log(
-          "Image uploaded successfully:",
-          responseData.data.results[0].score
-        );
-        setHerbData(responseData.data.results);
-      } else {
-        console.error("Error uploading image:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-    }
-  };
-
   return (
     <>
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Button title="Pick an image from camera roll" onPress={pickImage} />
-        {image && (
-          <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
-        )}
-      </View>
+      <StatusBar style="light" />
+      <Provider store={store}>
+        <Navigator />
+      </Provider>
     </>
   );
 }
+
+const styles = StyleSheet.create({});
