@@ -37,7 +37,6 @@ const Navigator = () => {
           headerTintColor: "#ffffff", //color of title
         }}
       >
-    
         <Stack.Screen name="LandingScreen" component={LandingScreen} />
         <Stack.Screen name="TabScreen" component={TabScreen} />
         {/* <Stack.Screen name="TestScreen" component={TestScreen} /> */}

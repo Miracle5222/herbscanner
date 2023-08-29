@@ -35,7 +35,8 @@ export default function ScannerScreen({ navigation, route }) {
   const [capturedImage, setCapturedImage] = useState(null);
   const [visible, setVisibility] = useState(false);
   const [match, setBestMatch] = useState("");
-
+  const [uses, setUses] = useState(``);
+  const [benefits, setBenefits] = useState(``);
   const { rootRoute } = useSelector((state) => state.mainRoute);
 
   useLayoutEffect(() => {
@@ -60,11 +61,52 @@ export default function ScannerScreen({ navigation, route }) {
       setHasPermission(status === "granted");
     })();
   }, []);
+  const herbUses = async () => {
+    try {
+      const response = await fetch(`${rootRoute}uses`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: `what are the uses and the benefits of ${match} and its name in the philippines`,
+        }), // Sending a message in the request body
+      });
 
+      const responseData = await response.json();
+      console.log("Server response:", responseData.response);
+      setUses(responseData.response);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+  // const herbBenefits = async () => {
+  //   try {
+  //     const response = await fetch(`${rootRoute}benefits`, {
+  //       method: "POST",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         message: `what is the benefits of ${benefits}`,
+  //       }), // Sending a message in the request body
+  //     });
+
+  //     const responseData = await response.json();
+  //     console.log("Server response:", responseData.response);
+
+  //     setBenefits(responseData.response);
+  //   } catch (error) {
+  //     console.error("Error sending message:", error);
+  //   }
+  // };
   useEffect(() => {
     if (herbdata.length > 0) {
       setVisibility(!visible);
     }
+    herbUses();
   }, [herbdata]);
 
   if (hasPermission === null) {
@@ -126,21 +168,6 @@ export default function ScannerScreen({ navigation, route }) {
   };
   //upload image end
 
-  const Uses = () => {
-    return (
-      <View>
-        <Text style={{ color: "red" }}>TabNavScreen</Text>
-      </View>
-    );
-  };
-
-  const Benefits = () => {
-    return (
-      <View>
-        <Text style={{ color: "blue" }}>TabNavScreenTwo</Text>
-      </View>
-    );
-  };
   return (
     <View style={styles.container}>
       {/* <Camera
@@ -206,29 +233,33 @@ export default function ScannerScreen({ navigation, route }) {
                   )}
                 </View>
               </View>
-
-              <Top.Navigator
-                initialRouteName="Tab1"
-                screenOptions={{
-                  tabBarActiveTintColor: "#316805",
-                  tabBarInactiveTintColor: "#4A5B3B",
-                  tabBarIndicatorStyle: {
-                    backgroundColor: "#316805", // Change this color to your desired color
-                  },
-                  style: {
-                    // borderBottomColor: "#FF0000", // Change this color to your desired color
-                    // borderBottomWidth: 2, // Add a bottom border with specified width
-                    backgroundColor: "#EDEDED",
-                  },
-                  labelStyle: {
-                    fontWeight: "500",
-                    fontSize: 14,
-                  },
-                }}
-              >
-                <Top.Screen name="Uses" component={Uses} />
-                <Top.Screen name="Benefits" component={Benefits} />
-              </Top.Navigator>
+              <View style={styles.usesContainer}>
+                <Text style={styles.HerbUses}>Herb Uses</Text>
+                <View style={styles.herbUsesContent}>
+                  {uses ? (
+                    <Text>{`${uses}`}</Text>
+                  ) : (
+                    <Text>Uses Not Available</Text>
+                  )}
+                </View>
+              </View>
+              <View>
+                <TouchableOpacity>
+                  <Text
+                    style={{
+                      padding: 12,
+                      backgroundColor: "#B3E468",
+                      textAlign: "center",
+                      fontWeight: "bold",
+                      color: "#ffffff",
+                      borderRadius: 12,
+                      marginTop: 10,
+                    }}
+                  >
+                    Save
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
         </View>
@@ -286,10 +317,17 @@ export default function ScannerScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   bottomContainer: {
     paddingHorizontal: 20,
+    flex: 1,
   },
   bottomHeaderCon: {
     marginTop: 20,
   },
+  usesContainer: {},
+  herbUsesContent: { marginTop: -20 },
+  HerbUses: { color: "#D1556C", fontSize: 14 },
+  benefitsContainer: {},
+  herbbenefitsContent: { marginTop: -20, marginBottom: 10 },
+  Herbbenefits: { color: "#D1556C", fontSize: 14 },
 
   bottomHeaderConBestMatch: {
     color: "#D1556C",
