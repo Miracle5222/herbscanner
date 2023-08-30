@@ -19,7 +19,14 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 
 //bootomsheet
 import { BottomSheet } from "react-native-btr";
+//reducers
 
+import {
+  herbBestMatchHandler,
+  herbDataHandler,
+  herbImageHandler,
+  herbUsesHandler,
+} from "../redux/herbdatareducer";
 const Top = createMaterialTopTabNavigator();
 const { width, height } = Dimensions.get("screen");
 
@@ -27,17 +34,22 @@ const WIDTH = width;
 const HEIGHT = height;
 
 export default function ScannerScreen({ navigation, route }) {
-  const [popUp, setPopUp] = useState(false);
-  const [image, setImage] = useState("");
-  const [herbdata, setHerbData] = useState([]);
-  const [hasPermission, setHasPermission] = useState(null);
+  const [popUp, setPopUp] = useState(false); //modal status
+  // const [image, setImage] = useState(""); // image herb
+  // const [herbdata, setHerbData] = useState([]); //herb data
+  const [hasPermission, setHasPermission] = useState(null); //camera permission
   const [cameraRef, setCameraRef] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [visible, setVisibility] = useState(false);
-  const [match, setBestMatch] = useState("");
-  const [uses, setUses] = useState(``);
-  const [benefits, setBenefits] = useState(``);
-  const { rootRoute } = useSelector((state) => state.mainRoute);
+  const [visible, setVisibility] = useState(false); //modal visibility
+  // const [match, setBestMatch] = useState(""); //get/set herb name best match
+  const [uses, setUses] = useState(``); //get/set herb uses
+  const [benefits, setBenefits] = useState(``); //get/set herb benefits
+  const { rootRoute } = useSelector((state) => state.mainRoute); //root route to connect server
+  const { herbdata, match, herbsUses, image } = useSelector(
+    (state) => state.herbData
+  );
+
+  const dispatch = useDispatch();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -53,7 +65,7 @@ export default function ScannerScreen({ navigation, route }) {
       headerShadowVisible: false,
       headerTintColor: "#ffffff", //color of title
     });
-  }, [navigation]);
+  }, [navigation, match]);
 
   useEffect(() => {
     (async () => {
@@ -70,17 +82,19 @@ export default function ScannerScreen({ navigation, route }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: `what are the uses and the benefits of ${match} and its name in the philippines`,
+          message: `what are the uses and the benefits of ${match} and its name in the philippines, make it concise`,
         }), // Sending a message in the request body
       });
 
       const responseData = await response.json();
       console.log("Server response:", responseData.response);
-      setUses(responseData.response);
+      // setUses(responseData.response);
+      dispatch(herbUsesHandler(responseData.response));
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
+
   // const herbBenefits = async () => {
   //   try {
   //     const response = await fetch(`${rootRoute}benefits`, {
@@ -128,7 +142,8 @@ export default function ScannerScreen({ navigation, route }) {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      // setImage(result.assets[0].uri);
+      dispatch(herbImageHandler(result.assets[0].uri));
       uploadImage(result.assets[0].uri);
     }
   };
@@ -157,8 +172,12 @@ export default function ScannerScreen({ navigation, route }) {
           responseData.data.results[0].score
         );
         // console.log(herbdata.species.commonNames);
-        setBestMatch(responseData.data.bestMatch);
-        setHerbData(responseData.data.results[0]);
+        // setBestMatch(responseData.data.bestMatch);
+
+        // setHerbData(responseData.data.results[0]);
+
+        dispatch(herbBestMatchHandler(responseData.data.bestMatch));
+        dispatch(herbDataHandler(responseData.data.results[0]));
       } else {
         console.error("Error uploading image:", response.statusText);
       }
@@ -236,8 +255,8 @@ export default function ScannerScreen({ navigation, route }) {
               <View style={styles.usesContainer}>
                 <Text style={styles.HerbUses}>Herb Uses</Text>
                 <View style={styles.herbUsesContent}>
-                  {uses ? (
-                    <Text>{`${uses}`}</Text>
+                  {herbsUses ? (
+                    <Text style={{ marginTop: 10 }}>{`${herbsUses}`}</Text>
                   ) : (
                     <Text>Uses Not Available</Text>
                   )}
@@ -254,9 +273,30 @@ export default function ScannerScreen({ navigation, route }) {
                       color: "#ffffff",
                       borderRadius: 12,
                       marginTop: 10,
+                      marginBottom: 10,
                     }}
                   >
                     Save
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate("ScanScreen");
+                  }}
+                >
+                  <Text
+                    style={{
+                      padding: 12,
+                      backgroundColor: "#D1556C",
+                      textAlign: "center",
+                      fontWeight: "bold",
+                      color: "#ffffff",
+                      borderRadius: 12,
+                      marginTop: 0,
+                      marginBottom: 10,
+                    }}
+                  >
+                    Try Scanning Again
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -278,6 +318,7 @@ export default function ScannerScreen({ navigation, route }) {
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate("ScanScreen");
+                setPopUp(!popUp);
               }}
             >
               <Text style={styles.continueMissage}>Continue</Text>

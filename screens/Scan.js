@@ -12,8 +12,13 @@ import { Camera } from "expo-camera";
 import { useDispatch, useSelector } from "react-redux";
 // import * as MediaLibrary from "expo-media-library";
 import { camerahandler } from "../redux/camerareducer";
+import {
+  herbBestMatchHandler,
+  herbDataHandler,
+  herbImageHandler,
+} from "../redux/herbdatareducer";
 
-export default function ScanScreen() {
+export default function ScanScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -39,6 +44,8 @@ export default function ScanScreen() {
       const photo = await cameraRef.takePictureAsync(pictureOptions);
       setCapturedImage(photo);
       dispatch(camerahandler(photo.uri));
+      dispatch(herbImageHandler(photo.uri));
+
       console.log(photo);
       //   saveToCameraRoll(photo.uri);
       // console.log(photo.uri);
@@ -81,6 +88,10 @@ export default function ScanScreen() {
             );
             // setHerbData(responseData.data.results);
             console.log(responseData.data.result);
+
+            dispatch(herbBestMatchHandler(responseData.data.bestMatch));
+            dispatch(herbDataHandler(responseData.data.results[0]));
+            navigation.navigate("Scan");
           } else {
             console.error("Error uploading image:", response.statusText);
           }
