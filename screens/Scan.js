@@ -26,6 +26,9 @@ export default function ScanScreen({ navigation }) {
   //reduer
   const { herbImage } = useSelector((state) => state.camera);
   const { rootRoute } = useSelector((state) => state.mainRoute);
+  const { herbdata, match, herbsUses, image } = useSelector(
+    (state) => state.herbData
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -51,6 +54,8 @@ export default function ScanScreen({ navigation }) {
       // console.log(photo.uri);
     }
   };
+  // console.log(herbdata.species.commonNames);
+
 
   //   const saveToCameraRoll = async (uri) => {
   //     if (Platform.OS === "android") {
@@ -105,6 +110,7 @@ export default function ScanScreen({ navigation }) {
       uploadImage();
     }
   }, [herbImage]);
+  
 
   if (hasPermission === null) {
     return <View />;

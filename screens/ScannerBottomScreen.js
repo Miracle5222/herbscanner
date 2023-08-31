@@ -20,7 +20,7 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 //bootomsheet
 import { BottomSheet } from "react-native-btr";
 //reducers
-
+import * as FileSystem from "expo-file-system";
 import {
   herbBestMatchHandler,
   herbDataHandler,
@@ -65,7 +65,14 @@ export default function ScannerScreen({ navigation, route }) {
       headerShadowVisible: false,
       headerTintColor: "#ffffff", //color of title
     });
-  }, [navigation, match]);
+  }, [navigation, herbUses]);
+
+  useEffect(() => {
+    dispatch(herbImageHandler(""));
+    dispatch(herbUsesHandler(""));
+    dispatch(herbDataHandler(""));
+    dispatch(herbBestMatchHandler(""));
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -73,6 +80,39 @@ export default function ScannerScreen({ navigation, route }) {
       setHasPermission(status === "granted");
     })();
   }, []);
+
+  //save scanned herbs
+
+  const saveScanned = async () => {
+    const formData = new FormData();
+    formData.append("image", {
+      uri: image,
+      name: "image.jpg",
+      type: "image/jpeg",
+    });
+    formData.append(
+      "herbs",
+      JSON.stringify({
+        match,
+        herbsUses,
+        commonNames: herbdata.species.commonNames,
+        score: herbdata.score,
+      })
+    );
+    try {
+      const response = await fetch(`${rootRoute}saveScanned`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        body: formData,
+      });
+
+      const responseData = await response.json();
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
   const herbUses = async () => {
     try {
       const response = await fetch(`${rootRoute}uses`, {
@@ -89,6 +129,7 @@ export default function ScannerScreen({ navigation, route }) {
       const responseData = await response.json();
       console.log("Server response:", responseData.response);
       // setUses(responseData.response);
+      saveScanned();
       dispatch(herbUsesHandler(responseData.response));
     } catch (error) {
       console.error("Error sending message:", error);
@@ -263,7 +304,7 @@ export default function ScannerScreen({ navigation, route }) {
                 </View>
               </View>
               <View>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={saveScanned}>
                   <Text
                     style={{
                       padding: 12,
