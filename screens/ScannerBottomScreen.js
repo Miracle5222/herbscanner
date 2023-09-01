@@ -7,6 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Image,
+  Alert,
 } from "react-native";
 import React, { useLayoutEffect, useState, useEffect } from "react";
 import Svg, { Rect } from "react-native-svg";
@@ -48,6 +49,7 @@ export default function ScannerScreen({ navigation, route }) {
   const { herbdata, match, herbsUses, image } = useSelector(
     (state) => state.herbData
   );
+  const { userPass, userId, userName } = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
 
@@ -81,6 +83,28 @@ export default function ScannerScreen({ navigation, route }) {
     })();
   }, []);
 
+  const saveScannedHerbs = async () => {
+    try {
+      const response = await fetch(`${rootRoute}api/saveScannedHerbs`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: herbdata?.gbif?.id,
+          userId,
+        }),
+      });
+
+      const responseData = await response.json(); // Await the response.json() promise
+      console.log(responseData);
+    } catch (error) {
+      // console.error("Error sending message:", error);
+      console.log("failed to save herbs");
+    }
+  };
+
   //save scanned herbs
 
   const saveScanned = async () => {
@@ -95,8 +119,10 @@ export default function ScannerScreen({ navigation, route }) {
       JSON.stringify({
         match,
         herbsUses,
-        commonNames: herbdata.species.commonNames,
+        commonName: herbdata?.species?.commonNames,
         score: herbdata.score,
+        id: herbdata?.gbif?.id,
+        userId,
       })
     );
     try {
@@ -109,30 +135,48 @@ export default function ScannerScreen({ navigation, route }) {
       });
 
       const responseData = await response.json();
+      console.log(responseData);
+      // Alert.alert(
+      //   "Alert",
+      //   responseData.results,
+      //   [
+      //     {
+      //       text: "Cancel",
+      //       style: "cancel",
+      //     },
+      //     {
+      //       text: "OK",
+      //       onPress: () => console.log("OK Pressed"),
+      //     },
+      //   ],
+      //   { cancelable: false }
+      // );
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
   const herbUses = async () => {
-    try {
-      const response = await fetch(`${rootRoute}uses`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: `what are the uses and the benefits of ${match} and its name in the philippines, make it concise`,
-        }), // Sending a message in the request body
-      });
+    if (match != "") {
+      try {
+        const response = await fetch(`${rootRoute}api/uses`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: `what are the uses and the benefits of ${match} and its name in the philippines, make it concise`,
+          }), // Sending a message in the request body
+        });
 
-      const responseData = await response.json();
-      console.log("Server response:", responseData.response);
-      // setUses(responseData.response);
-      saveScanned();
-      dispatch(herbUsesHandler(responseData.response));
-    } catch (error) {
-      console.error("Error sending message:", error);
+        const responseData = await response.json();
+        console.log("Server response:", responseData.response);
+        // setUses(responseData.response);
+        saveScanned();
+        dispatch(herbUsesHandler(responseData.response));
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
 
@@ -304,7 +348,7 @@ export default function ScannerScreen({ navigation, route }) {
                 </View>
               </View>
               <View>
-                <TouchableOpacity onPress={saveScanned}>
+                <TouchableOpacity onPress={saveScannedHerbs}>
                   <Text
                     style={{
                       padding: 12,

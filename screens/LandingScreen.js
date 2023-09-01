@@ -20,7 +20,11 @@ export default function LandingScreen({ navigation }) {
           <Text style={styles.welcome}>Welcome to Herb Scanner App</Text>
         </View>
         <View style={styles.bottomContainer}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("LoginScreen");
+            }}
+          >
             <Text style={styles.bottomContainerLogin}>Sign-In</Text>
           </TouchableOpacity>
           <TouchableOpacity

@@ -17,6 +17,10 @@ export default function HomeScreen({ navigation }) {
       headerTintColor: "#ffffff", //color of title
     });
   }, [navigation]);
+
+  const recentScanned = ()=>{
+    
+  }
   return (
     <View style={styles.container}>
       <Text>Home Screen</Text>
@@ -28,7 +32,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#F8FFEE",
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "start",
     alignItems: "center",
   },
 });

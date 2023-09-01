@@ -1,11 +1,32 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import * as Sharing from "expo-sharing";
+import { captureScreen } from "react-native-view-shot";
+import * as MediaLibrary from "expo-media-library";
+
+const { width, height } = Dimensions.get("screen");
+
+const WIDTH = width;
+const HEIGHT = height;
 
 export default function ProfileScreen({ navigation }) {
   const [chatmsg, setChatMsg] = useState("");
 
   const { rootRoute } = useSelector((state) => state.mainRoute);
+
+  const { herbdata, match, herbsUses, image } = useSelector(
+    (state) => state.herbData
+  );
+  const [status, requestPermission] = MediaLibrary.usePermissions();
+  const imageRef = useRef();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -23,30 +44,58 @@ export default function ProfileScreen({ navigation }) {
     });
   }, [navigation]);
 
-  const sendMessageToServer = async () => {
+  if (status === null) {
+    requestPermission();
+  }
+  const shareImage = async () => {
+    const imageUri = image; // Update this with your image file path or URL
+
     try {
-      const response = await fetch(`${rootRoute}receive-message`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: "what is the largest country in the world?",
-        }), // Sending a message in the request body
+      await Sharing.shareAsync(imageUri, {
+        mimeType: "image/jpg",
+        dialogTitle: "Share this image",
+      });
+    } catch (error) {
+      console.error("Error sharing:", error);
+    }
+  };
+  const handleCapture = async () => {
+    try {
+      const imageURI = await captureScreen({
+        format: "jpg", // or 'png'
+        quality: 1, // 0.0 - 1.0
       });
 
-      const responseData = await response.json();
-      console.log("Server response:", responseData.response);
+      const asset = await MediaLibrary.createAssetAsync(imageURI);
+      await MediaLibrary.createAlbumAsync("ExpoScreenshots", asset, false);
+
+      console.log("Screenshot saved to album");
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error capturing screenshot:", error);
     }
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={sendMessageToServer}>
-        <Text>Profile Screen</Text>
+      <View>
+        {image ? (
+          <View>
+            <Image
+              source={{ uri: image }}
+              resizeMode="cover"
+              style={{ width: WIDTH, height: 200 }}
+            />
+            <TouchableOpacity onPress={shareImage}>
+              <Text>Share</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Text>Image Not available</Text>
+        )}
+      </View>
+
+      <TouchableOpacity onPress={handleCapture}>
+        <Text>ScreenShot</Text>
       </TouchableOpacity>
     </View>
   );
