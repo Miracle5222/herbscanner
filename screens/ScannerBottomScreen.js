@@ -99,6 +99,7 @@ export default function ScannerScreen({ navigation, route }) {
 
       const responseData = await response.json(); // Await the response.json() promise
       console.log(responseData);
+      Alert.alert(responseData?.message);
     } catch (error) {
       // console.error("Error sending message:", error);
       console.log("failed to save herbs");

@@ -31,7 +31,7 @@ export default function ProfileScreen({ navigation }) {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      title: "Scan Herbs",
+      title: "Profile",
       headerStyle: {
         backgroundColor: "#608246",
       },

@@ -5,7 +5,7 @@ export default function SettingsScreen({ navigation }) {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      title: "Scan Herbs",
+      title: "Settings",
       headerStyle: {
         backgroundColor: "#608246",
       },

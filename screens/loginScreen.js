@@ -8,8 +8,9 @@ import {
   Keyboard,
   TouchableHighlightBase,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { useDispatch, useSelector } from "react-redux";
 const { width, height } = Dimensions.get("screen");
@@ -25,11 +26,26 @@ export default function LoginScreen({ navigation }) {
   const [imageWidth, setImageWidth] = useState(350);
   const { userPass, userId, userName } = useSelector((state) => state.user);
   const { rootRoute } = useSelector((state) => state.mainRoute); //root route to connect server
+  const [keyboardStatus, setKeyboardStatus] = useState("");
   const dispatch = useDispatch();
 
   const changeImageWidth = () => {
     setImageWidth(200);
   };
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardStatus("Keyboard Shown");
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardStatus("Keyboard Hidden");
+      setImageWidth(350);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
   const loginUser = async () => {
     if (userPass != "" && userName != "") {
       try {
@@ -47,18 +63,21 @@ export default function LoginScreen({ navigation }) {
 
         const response = await loginResponse.json();
         console.log(response);
-        if (
-          response?.data.id != null &&
-          response?.data.username != null &&
-          response?.data.password != null
-        ) {
-          dispatch(userPassHandler(response.password));
-          dispatch(userNameHandler(response.username));
-          dispatch(userIdHandler(response.id));
-
+        if (response?.data?.ok) {
+          if (
+            response?.data.id != null &&
+            response?.data.username != null &&
+            response?.data.password != null
+          ) {
+            // dispatch(userPassHandler(response.data.password));
+            dispatch(userNameHandler(response.data.username));
+            dispatch(userIdHandler(response.data.id));
+          } else {
+            console.log(response.data.message);
+          }
           navigation.navigate("TabScreen");
         } else {
-          console.log(response.data.message);
+          Alert.alert(response?.data?.message);
         }
       } catch (error) {
         console.log(error);
@@ -106,7 +125,9 @@ export default function LoginScreen({ navigation }) {
               marginTop: 60,
             }}
           >
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("RegistrationScreen")}
+            >
               <Text
                 style={{ fontSize: 16, fontWeight: "400", color: "#608246" }}
               >

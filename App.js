@@ -11,6 +11,7 @@ import TabScreen from "./screens/TabScreen";
 import LandingScreen from "./screens/LandingScreen";
 import RegistrationScreen from "./screens/registrationScreen";
 import LoginScreen from "./screens/loginScreen";
+import HerbsDetailsScreen from "./screens/HerbsDetailsScreen";
 //redux
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
@@ -40,11 +41,18 @@ const Navigator = () => {
         }}
       >
         <Stack.Screen name="LandingScreen" component={LandingScreen} />
-        <Stack.Screen name="RegistrationScree" component={RegistrationScreen} />
+        <Stack.Screen
+          name="RegistrationScreen"
+          component={RegistrationScreen}
+        />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="TabScreen" component={TabScreen} />
         {/* <Stack.Screen name="TestScreen" component={TestScreen} /> */}
         <Stack.Screen name="ScanScreen" component={ScanScreen} />
+        <Stack.Screen
+          name="HerbsDetailsScreen"
+          component={HerbsDetailsScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
