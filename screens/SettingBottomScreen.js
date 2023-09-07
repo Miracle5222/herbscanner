@@ -1,7 +1,9 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useLayoutEffect } from "react";
+import { useSelector } from "react-redux";
 
 export default function SettingsScreen({ navigation }) {
+  const { backgroundColor } = useSelector((state) => state.theme);
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -18,10 +20,54 @@ export default function SettingsScreen({ navigation }) {
     });
   }, [navigation]);
   return (
-    <View>
-      <Text>Settings Screen</Text>
+    <View style={styles.container}>
+      <View
+        style={[
+          styles.textContainer,
+          { backgroundColor: backgroundColor.four },
+        ]}
+      >
+        <TouchableOpacity>
+          <Text style={styles.textLabel}>About</Text>
+        </TouchableOpacity>
+      </View>
+      <View
+        style={[
+          styles.textContainer,
+          { backgroundColor: backgroundColor.four },
+        ]}
+      >
+        <TouchableOpacity>
+          <Text style={styles.textLabel}>Mision & Vision</Text>
+        </TouchableOpacity>
+      </View>
+      <View
+        style={[
+          styles.textContainer,
+          { backgroundColor: backgroundColor.four },
+        ]}
+      >
+        <TouchableOpacity>
+          <Text style={styles.textLabel}>Logout</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingVertical: 15,
+    backgroundColor: "#ffffff",
+  },
+  textContainer: {
+    paddingHorizontal: 10,
+  },
+  textLabel: {
+    paddingVertical: 10,
+    color: "#363636",
+    fontSize: 18,
+    fontWeight: "500",
+  },
+});

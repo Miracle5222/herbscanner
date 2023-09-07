@@ -49,6 +49,7 @@ export default function ScannerScreen({ navigation, route }) {
   const { herbdata, match, herbsUses, image } = useSelector(
     (state) => state.herbData
   );
+  const { backgroundColor } = useSelector((state) => state.theme);
   const { userPass, userId, userName } = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
@@ -173,7 +174,7 @@ export default function ScannerScreen({ navigation, route }) {
         const responseData = await response.json();
         console.log("Server response:", responseData.response);
         // setUses(responseData.response);
-        saveScanned();
+
         dispatch(herbUsesHandler(responseData.response));
       } catch (error) {
         console.error("Error sending message:", error);
@@ -208,6 +209,11 @@ export default function ScannerScreen({ navigation, route }) {
     }
     herbUses();
   }, [herbdata]);
+  useEffect(() => {
+    if (herbsUses != "") {
+      saveScanned();
+    }
+  }, [herbsUses]);
 
   if (hasPermission === null) {
     return <View />;
@@ -342,7 +348,9 @@ export default function ScannerScreen({ navigation, route }) {
                 <Text style={styles.HerbUses}>Herb Uses</Text>
                 <View style={styles.herbUsesContent}>
                   {herbsUses ? (
-                    <Text style={{ marginTop: 10 }}>{`${herbsUses}`}</Text>
+                    <Text
+                      style={{ fontSize: 16, color: backgroundColor.tertiary }}
+                    >{`${herbsUses}`}</Text>
                   ) : (
                     <Text>Uses Not Available</Text>
                   )}

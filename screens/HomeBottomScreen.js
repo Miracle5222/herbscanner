@@ -65,7 +65,7 @@ export default function HomeScreen({ navigation }) {
       headerShadowVisible: false,
       headerTintColor: "#ffffff", //color of title
     });
-  }, [navigation, herbs]);
+  }, [navigation]);
 
   // Use useMemo to ensure fetchData is only created once
   // const fetchData = useMemo(() => {
@@ -92,7 +92,7 @@ export default function HomeScreen({ navigation }) {
       }
       const data = await response.json();
       setHerbsData(data);
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.error(error);
     }
@@ -109,7 +109,8 @@ export default function HomeScreen({ navigation }) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch saved herbs data");
+        // throw new Error("Failed to fetch saved herbs data");
+        console.log("No saved data");
       }
       const data = await response.json();
       setSaveHerbsData(data);
@@ -144,6 +145,7 @@ export default function HomeScreen({ navigation }) {
             herbId: item.scannedId,
             herb: item.herbUses,
             date: item.dateScanned,
+            action: "recentHerbs",
           })
         }
       >
@@ -160,7 +162,19 @@ export default function HomeScreen({ navigation }) {
 
   const renderItemSave = ({ item }) => (
     <View style={{ marginTop: 10, marginHorizontal: 5, width: 80 }}>
-      <TouchableOpacity activeOpacity={0.8}>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() =>
+          navigation.navigate("HerbsDetailsScreen", {
+            herbName: item.herbName,
+            herbImage: item.image,
+            herbId: item.scannedId,
+            herb: item.herbUses,
+            date: item.dateScanned,
+            action: "savedHerbs",
+          })
+        }
+      >
         <Image
           style={{ height: 80, width: 80, borderRadius: 8 }}
           source={{ uri: `${rootRoute}upload/${item.image}` }}
@@ -187,23 +201,36 @@ export default function HomeScreen({ navigation }) {
             source={{ uri: `${rootRoute}upload/${image}` }}
           />
         )} */}
-        <FlatList
-          data={herbs}
-          horizontal
-          keyExtractor={(item) => item.scannedId.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={styles.flatListContainer}
-        />
+        {herbs.length > 0 ? (
+          <FlatList
+            data={herbs}
+            horizontal
+            keyExtractor={(item) => item.scannedId.toString()}
+            renderItem={renderItem}
+            contentContainerStyle={styles.flatListContainer}
+          />
+        ) : (
+          <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
+            no recent scanned
+          </Text>
+        )}
+
         <Text style={[{ color: backgroundColor.secondary }, styles.label]}>
           save herbs
         </Text>
-        <FlatList
-          data={saveherbs}
-          horizontal
-          keyExtractor={(item) => item.scannedId.toString()}
-          renderItem={renderItemSave}
-          contentContainerStyle={styles.flatListContainer}
-        />
+        {saveherbs.length > 0 ? (
+          <FlatList
+            data={saveherbs}
+            horizontal
+            keyExtractor={(item) => item.scannedId.toString()}
+            renderItem={renderItemSave}
+            contentContainerStyle={styles.flatListContainer}
+          />
+        ) : (
+          <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
+            you don't have saved herbs
+          </Text>
+        )}
       </View>
     </View>
   );

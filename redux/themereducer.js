@@ -7,6 +7,7 @@ const themeSlice = createSlice({
       primary: "#AAE057",
       secondary: "#D1556C",
       tertiary: "#316805",
+      four:"#F1F1F1",
     },
     colors: {
       title: "#AAE057",

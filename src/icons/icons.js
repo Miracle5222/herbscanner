@@ -81,3 +81,50 @@ export const Exit = (props) => (
     />
   </Svg>
 );
+export const Share = (props) => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={26}
+    height={21}
+    fill="none"
+    {...props}
+  >
+    <Path
+      fill="#ffffff"
+      d="M25.859 9.684 16.229.14a.483.483 0 0 0-.822.338v5.26c-6.5.29-14.496 6.388-15.4 14.197a.932.932 0 0 0 .552.973.96.96 0 0 0 1.107-.212c1.388-1.464 6.414-6.172 13.741-6.371v5.241a.474.474 0 0 0 .297.441.486.486 0 0 0 .525-.103l9.63-9.545a.475.475 0 0 0 0-.675Zm-9.489 8.728V13.84a.475.475 0 0 0-.14-.338.484.484 0 0 0-.341-.14c-3.297 0-6.51.856-9.55 2.541a22.835 22.835 0 0 0-5.376 4.14c.405-3.485 2.353-6.857 5.489-9.493 2.88-2.424 6.407-3.869 9.437-3.869.127 0 .25-.05.34-.14.09-.089.141-.21.141-.337V1.63l8.467 8.392-8.467 8.39Z"
+    />
+  </Svg>
+);
+export const Dotted = (props) => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={4}
+    height={20}
+    fill="none"
+    {...props}
+  >
+    <Path
+      stroke="#fff"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={3}
+      d="M2 2h-.01M2 6h-.01M2 10h-.01M2 14h-.01M2 18h-.01"
+    />
+  </Svg>
+);
+export const Pluss = (props) => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    fill="none"
+    {...props}
+  >
+    <Path
+      stroke="#D1556C"
+      strokeLinecap="round"
+      strokeWidth={2}
+      d="M12 19V5m7 7H5"
+    />
+  </Svg>
+);
