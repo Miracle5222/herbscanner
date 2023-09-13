@@ -12,6 +12,7 @@ import LandingScreen from "./screens/LandingScreen";
 import RegistrationScreen from "./screens/registrationScreen";
 import LoginScreen from "./screens/loginScreen";
 import HerbsDetailsScreen from "./screens/HerbsDetailsScreen";
+import UserProfileScreen from "./screens/UserProfileScreen";
 //redux
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
@@ -53,6 +54,11 @@ const Navigator = () => {
           name="HerbsDetailsScreen"
           component={HerbsDetailsScreen}
         />
+         <Stack.Screen
+          name="UserProfileScreen"
+          component={UserProfileScreen}
+        />
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

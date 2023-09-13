@@ -27,6 +27,26 @@ export default function SettingsScreen({ navigation }) {
           { backgroundColor: backgroundColor.four },
         ]}
       >
+        <TouchableOpacity onPress={() => navigation.push("UserProfileScreen")}>
+          <Text style={styles.textLabel}>Profile</Text>
+        </TouchableOpacity>
+      </View>
+      <View
+        style={[
+          styles.textContainer,
+          { backgroundColor: backgroundColor.four },
+        ]}
+      >
+        <TouchableOpacity>
+          <Text style={styles.textLabel}>App Permissions</Text>
+        </TouchableOpacity>
+      </View>
+      <View
+        style={[
+          styles.textContainer,
+          { backgroundColor: backgroundColor.four },
+        ]}
+      >
         <TouchableOpacity>
           <Text style={styles.textLabel}>About</Text>
         </TouchableOpacity>

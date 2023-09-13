@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
   View,
 } from "react-native";
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
@@ -108,12 +109,13 @@ export default function HomeScreen({ navigation }) {
         body: JSON.stringify({ userId }),
       });
 
-      if (!response.ok) {
-        // throw new Error("Failed to fetch saved herbs data");
-        console.log("No saved data");
-      }
+      // if (!response.ok) {
+      //   // throw new Error("Failed to fetch saved herbs data");
+      //   console.log("No saved data");
+      // }
       const data = await response.json();
       setSaveHerbsData(data);
+      // console.log(data);
     } catch (error) {
       console.error(error);
     }
@@ -150,6 +152,7 @@ export default function HomeScreen({ navigation }) {
         }
       >
         <Image
+          priority="high"
           style={{ height: 200, width: 200, borderRadius: 8 }}
           source={{ uri: `${rootRoute}upload/${item.image}` }}
         />
@@ -176,6 +179,7 @@ export default function HomeScreen({ navigation }) {
         }
       >
         <Image
+          priority="high"
           style={{ height: 80, width: 80, borderRadius: 8 }}
           source={{ uri: `${rootRoute}upload/${item.image}` }}
         />
@@ -189,47 +193,52 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View>
-        <Text style={[{ color: backgroundColor.secondary }, styles.user]}>
-          Welcome, {userName}
-        </Text>
-        <Text style={[{ color: backgroundColor.secondary }, styles.label]}>
-          recent scanned
-        </Text>
-        {/* {image && (
-          <Image
-            style={{ height: 80, width: 80, borderRadius: 8 }}
-            source={{ uri: `${rootRoute}upload/${image}` }}
-          />
-        )} */}
-        {herbs.length > 0 ? (
-          <FlatList
-            data={herbs}
-            horizontal
-            keyExtractor={(item) => item.scannedId.toString()}
-            renderItem={renderItem}
-            contentContainerStyle={styles.flatListContainer}
-          />
+        {herbs.length > 0 || saveherbs.length > 0 ? (
+          <>
+            <Text style={[{ color: backgroundColor.secondary }, styles.user]}>
+              Welcome, {userName}
+            </Text>
+            <Text style={[{ color: backgroundColor.secondary }, styles.label]}>
+              Recent Scanned Herbs
+            </Text>
+            {/* {image && (
+        <Image
+          style={{ height: 80, width: 80, borderRadius: 8 }}
+          source={{ uri: `${rootRoute}upload/${image}` }}
+        />
+      )} */}
+            {herbs.length > 0 ? (
+              <FlatList
+                data={herbs}
+                horizontal
+                keyExtractor={(item) => item.scannedId.toString()}
+                renderItem={renderItem}
+                contentContainerStyle={styles.flatListContainer}
+              />
+            ) : (
+              <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
+                no recent scanned
+              </Text>
+            )}
+            <Text style={[{ color: backgroundColor.secondary }, styles.label]}>
+              Save Herbs
+            </Text>
+            {saveherbs.length > 0 ? (
+              <FlatList
+                data={saveherbs}
+                horizontal
+                keyExtractor={(item) => item.scannedId.toString()}
+                renderItem={renderItemSave}
+                contentContainerStyle={styles.flatListContainer}
+              />
+            ) : (
+              <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
+                you don't have saved herbs
+              </Text>
+            )}
+          </>
         ) : (
-          <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
-            no recent scanned
-          </Text>
-        )}
-
-        <Text style={[{ color: backgroundColor.secondary }, styles.label]}>
-          save herbs
-        </Text>
-        {saveherbs.length > 0 ? (
-          <FlatList
-            data={saveherbs}
-            horizontal
-            keyExtractor={(item) => item.scannedId.toString()}
-            renderItem={renderItemSave}
-            contentContainerStyle={styles.flatListContainer}
-          />
-        ) : (
-          <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
-            you don't have saved herbs
-          </Text>
+          <ActivityIndicator size="large" color="#00ff00" />
         )}
       </View>
     </View>
