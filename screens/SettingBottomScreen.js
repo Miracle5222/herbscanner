@@ -1,9 +1,16 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useLayoutEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  userNameHandler,
+  userPassHandler,
+  userIdHandler,
+} from "../redux/userReducer";
 
 export default function SettingsScreen({ navigation }) {
   const { backgroundColor } = useSelector((state) => state.theme);
+  const dispatch = useDispatch();
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -19,6 +26,13 @@ export default function SettingsScreen({ navigation }) {
       headerTintColor: "#ffffff", //color of title
     });
   }, [navigation]);
+
+  const Logout = () => {
+    dispatch(userNameHandler(""));
+    dispatch(userIdHandler(""));
+    dispatch(userPassHandler(""));
+    navigation.replace("LoginScreen");
+  };
   return (
     <View style={styles.container}>
       <View
@@ -31,7 +45,7 @@ export default function SettingsScreen({ navigation }) {
           <Text style={styles.textLabel}>Profile</Text>
         </TouchableOpacity>
       </View>
-      <View
+      {/* <View
         style={[
           styles.textContainer,
           { backgroundColor: backgroundColor.four },
@@ -40,18 +54,18 @@ export default function SettingsScreen({ navigation }) {
         <TouchableOpacity>
           <Text style={styles.textLabel}>App Permissions</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
       <View
         style={[
           styles.textContainer,
           { backgroundColor: backgroundColor.four },
         ]}
       >
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.push("AboutScreen")}>
           <Text style={styles.textLabel}>About</Text>
         </TouchableOpacity>
       </View>
-      <View
+      {/* <View
         style={[
           styles.textContainer,
           { backgroundColor: backgroundColor.four },
@@ -60,14 +74,14 @@ export default function SettingsScreen({ navigation }) {
         <TouchableOpacity>
           <Text style={styles.textLabel}>Mision & Vision</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
       <View
         style={[
           styles.textContainer,
           { backgroundColor: backgroundColor.four },
         ]}
       >
-        <TouchableOpacity>
+        <TouchableOpacity onPress={Logout}>
           <Text style={styles.textLabel}>Logout</Text>
         </TouchableOpacity>
       </View>

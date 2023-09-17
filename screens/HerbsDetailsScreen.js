@@ -199,22 +199,27 @@ export default function HerbsDetailsScreen({ navigation, route }) {
                   {route.params.herb}
                 </Text>
               </View>
-              <TouchableOpacity onPress={saveScannedHerbs}>
-                <Text
-                  style={{
-                    padding: 12,
-                    backgroundColor: "#B3E468",
-                    textAlign: "center",
-                    fontWeight: "bold",
-                    color: "#ffffff",
-                    borderRadius: 12,
-                    marginTop: 10,
-                    marginBottom: 20,
-                  }}
-                >
-                  Save
-                </Text>
-              </TouchableOpacity>
+              {route.params.action == "savedHerbs" ? (
+                <></>
+              ) : (
+                <TouchableOpacity onPress={saveScannedHerbs}>
+                  <Text
+                    style={{
+                      padding: 12,
+                      backgroundColor: "#B3E468",
+                      textAlign: "center",
+                      fontWeight: "bold",
+                      color: "#ffffff",
+                      borderRadius: 12,
+                      marginTop: 10,
+                      marginBottom: 20,
+                    }}
+                  >
+                    Save
+                  </Text>
+                </TouchableOpacity>
+              )}
+
               <TouchableOpacity
                 onPress={shareImage}
                 style={{
@@ -224,6 +229,7 @@ export default function HerbsDetailsScreen({ navigation, route }) {
                   alignItems: "center",
                   padding: 12,
                   borderRadius: 12,
+                  marginTop: 10,
                 }}
               >
                 <Text

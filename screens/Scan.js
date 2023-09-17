@@ -7,6 +7,8 @@ import {
   Platform,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import { Camera } from "expo-camera";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +19,11 @@ import {
   herbDataHandler,
   herbImageHandler,
 } from "../redux/herbdatareducer";
+
+const { width, height } = Dimensions.get("screen");
+
+const WIDTH = width;
+const HEIGHT = height;
 
 export default function ScanScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
@@ -29,6 +36,9 @@ export default function ScanScreen({ navigation }) {
   const { herbdata, match, herbsUses, image } = useSelector(
     (state) => state.herbData
   );
+
+  const [indicatorVisible, setIndicatorVisible] = useState(false);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -39,6 +49,7 @@ export default function ScanScreen({ navigation }) {
   }, []);
 
   const takePicture = async () => {
+    setIndicatorVisible(true);
     if (cameraRef) {
       const pictureOptions = {
         quality: 1, // Adjust quality (0.0 - 1.0)
@@ -55,7 +66,6 @@ export default function ScanScreen({ navigation }) {
     }
   };
   // console.log(herbdata.species.commonNames);
-
 
   //   const saveToCameraRoll = async (uri) => {
   //     if (Platform.OS === "android") {
@@ -87,30 +97,30 @@ export default function ScanScreen({ navigation }) {
 
           if (response.ok) {
             const responseData = await response.json();
-            console.log(
-              "Image uploaded successfully:",
-              responseData.data.results[0].score
-            );
+            // console.log(
+            //   "Image uploaded successfully:",
+            //   responseData.data.results[0].score
+            // );
             // setHerbData(responseData.data.results);
-            console.log(responseData.data.result);
+            // console.log(responseData);
 
             dispatch(herbBestMatchHandler(responseData.data.bestMatch));
             dispatch(herbDataHandler(responseData.data.results[0]));
+            setIndicatorVisible(false);
             navigation.navigate("Scan");
           } else {
             console.error("Error uploading image:", response.statusText);
           }
         } catch (error) {
-          console.error("Error uploading image:", error);
+          console.log("Error uploading image:", error);
         } finally {
-          console.log("clear state");
+          // console.log("clear state");
           dispatch(camerahandler(""));
         }
       };
       uploadImage();
     }
   }, [herbImage]);
-  
 
   if (hasPermission === null) {
     return <View />;
@@ -128,6 +138,18 @@ export default function ScanScreen({ navigation }) {
         ratio="16:9"
         zoom={0}
       />
+      {indicatorVisible && (
+        <View
+          style={{
+            position: "absolute",
+            top: HEIGHT / 2.5,
+            left: WIDTH / 2.3,
+          }}
+        >
+          <ActivityIndicator size="large" color="#00ff00" />
+        </View>
+      )}
+
       <View style={{ alignSelf: "center", backgroundColor: "#ffffff" }}>
         <TouchableOpacity
           title="Scan"

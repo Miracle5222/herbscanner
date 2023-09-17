@@ -22,23 +22,24 @@ import {
 const WIDTH = width;
 const HEIGHT = height;
 
-export default function LoginScreen({ navigation }) {
-  const [imageWidth, setImageWidth] = useState(350);
-  const { userPass, userId, userName } = useSelector((state) => state.user);
+export default function ForgetPasswordScreen({ navigation }) {
+  const [imageWidth, setImageWidth] = useState(250);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [newpassword, setNewPassword] = useState("");
+  const [confirmPass, setConPassword] = useState("");
   const { rootRoute } = useSelector((state) => state.mainRoute); //root route to connect server
-  const [keyboardStatus, setKeyboardStatus] = useState("");
   const dispatch = useDispatch();
 
-  const changeImageWidth = () => {
-    setImageWidth(200);
-  };
+  const [keyboardStatus, setKeyboardStatus] = useState("");
+
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
       setKeyboardStatus("Keyboard Shown");
     });
     const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
       setKeyboardStatus("Keyboard Hidden");
-      setImageWidth(350);
+      setImageWidth(250);
     });
 
     return () => {
@@ -47,46 +48,42 @@ export default function LoginScreen({ navigation }) {
     };
   }, []);
 
-  const loginUser = async () => {
-    if (userPass != "" && userName != "") {
+  const changeImageWidth = () => {
+    setImageWidth(150);
+  };
+  const forgetPass = async () => {
+    if (password != "" && newpassword != "" && username != "") {
       try {
-        const loginResponse = await fetch(`${rootRoute}api/login`, {
+        const reg = await fetch(`${rootRoute}api/changePass`, {
           method: "POST",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            userName,
-            userPass,
+            username,
+            password,
+            newpassword,
           }),
         });
-
-        const response = await loginResponse.json();
-        console.log(response);
-        if (response?.data?.ok) {
-          if (
-            response?.data.id != null &&
-            response?.data.username != null &&
-            response?.data.password != null
-          ) {
-            // dispatch(userPassHandler(response.data.password));
-            dispatch(userNameHandler(response.data.username));
-            dispatch(userIdHandler(response.data.id));
-          } else {
-            console.log(response.data.message);
-          }
-          navigation.replace("TabScreen");
-        } else {
-          Alert.alert(response?.data?.message);
+        const res = await reg.json();
+        console.log(res);
+        if (res?.message) {
+          Alert.alert(res.message);
+        }
+        if (res?.ok) {
+          navigation.navigate("LoginScreen");
         }
       } catch (error) {
         console.log(error);
       }
+    } else {
+      Alert.alert("Passwords don't match.");
     }
   };
+
   return (
-    <View style={{ flex: 1 }} onTouchStart={() => setImageWidth(350)}>
+    <View style={{ flex: 1 }} onTouchStart={() => setImageWidth(250)}>
       <StatusBar style="light" />
       <Image
         style={{ height: imageWidth, width: WIDTH }}
@@ -100,56 +97,63 @@ export default function LoginScreen({ navigation }) {
               style={styles.input}
               onFocus={changeImageWidth}
               placeholder="Enter Username"
-              onChangeText={(e) => dispatch(userNameHandler(e))}
+              onChangeText={(e) => setUsername(e)}
             />
           </View>
           <View style={styles.passwordContainer}>
-            <Text style={styles.username}>Password</Text>
+            <Text style={styles.username}>Current Password</Text>
             <TextInput
               style={styles.input}
               secureTextEntry={true}
               onFocus={changeImageWidth}
-              placeholder="Enter Password"
-              onChangeText={(e) => dispatch(userPassHandler(e))}
+              placeholder="Enter current Password"
+              onChangeText={(e) => setPassword(e)}
+            />
+          </View>
+          <View style={styles.passwordContainer}>
+            <Text style={styles.username}>New Password</Text>
+            <TextInput
+              style={styles.input}
+              secureTextEntry={true}
+              onFocus={changeImageWidth}
+              placeholder="Enter new Password"
+              onChangeText={(e) => setNewPassword(e)}
             />
           </View>
           <View style={styles.submitContainer}>
-            <TouchableOpacity activeOpacity={0.5} onPress={loginUser}>
-              <Text style={styles.login}>Login</Text>
+            <TouchableOpacity activeOpacity={0.5} onPress={forgetPass}>
+              <Text style={styles.login}>Change Password</Text>
             </TouchableOpacity>
           </View>
-          <View
+          {/* <View
             style={{
               flexDirection: "row",
-              justifyContent: "space-between",
+              justifyContent: "center",
               paddingHorizontal: 12,
-              marginTop: 60,
+              marginTop: 20,
             }}
           >
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: "400",
+                color: "#608246",
+                paddingRight: 5,
+              }}
+            >
+              already registered?
+            </Text>
+
             <TouchableOpacity
-              onPress={() => navigation.navigate("RegistrationScreen")}
+              onPress={() => navigation.navigate("LoginScreen")}
             >
               <Text
-                style={{ fontSize: 16, fontWeight: "400", color: "#608246" }}
+                style={{ fontSize: 16, fontWeight: "400", color: "#D1556C" }}
               >
-                Sign up
+                Login
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("ForgetPasswordScreen")}
-            >
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: "400",
-                  color: "#608246",
-                  textDecorationLine: "underline",
-                }}
-              >
-                Forgot Password
-              </Text>
-            </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </View>
     </View>

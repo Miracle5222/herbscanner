@@ -27,13 +27,14 @@ export default function LandingScreen({ navigation }) {
           >
             <Text style={styles.bottomContainerLogin}>Sign-In</Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => {
               navigation.navigate("TabScreen");
             }}
           >
             <Text style={styles.bottomContainerSkip}>Skip</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+
           {/* <TouchableOpacity
             onPress={() => {
               navigation.navigate("TestScreen");

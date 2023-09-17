@@ -137,7 +137,7 @@ export default function ScannerScreen({ navigation, route }) {
       });
 
       const responseData = await response.json();
-      console.log(responseData);
+      // console.log(responseData);
       // Alert.alert(
       //   "Alert",
       //   responseData.results,
@@ -172,7 +172,7 @@ export default function ScannerScreen({ navigation, route }) {
         });
 
         const responseData = await response.json();
-        console.log("Server response:", responseData.response);
+        // console.log("Server response:", responseData.response);
         // setUses(responseData.response);
 
         dispatch(herbUsesHandler(responseData.response));
@@ -259,10 +259,11 @@ export default function ScannerScreen({ navigation, route }) {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log(
-          "Image uploaded successfully:",
-          responseData.data.results[0].score
-        );
+        // console.log(
+        //   "Image uploaded successfully:",
+        //   responseData.data.results[0].score
+        // );
+
         // console.log(herbdata.species.commonNames);
         // setBestMatch(responseData.data.bestMatch);
 

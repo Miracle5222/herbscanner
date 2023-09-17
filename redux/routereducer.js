@@ -3,7 +3,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 const routeSlice = createSlice({
   name: "route",
   initialState: {
-    rootRoute: "https://1de9-110-54-200-197.ngrok-free.app/",
+    // rootRoute: "https://herbscanner.onrender.com/",
+    rootRoute: "https://b6d9-64-226-56-106.ngrok-free.app/",
   },
   reducers: {
     routeRouter(state, action) {

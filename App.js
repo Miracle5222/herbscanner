@@ -20,6 +20,8 @@ import { store } from "./redux/store";
 import { useSelector, useDispatch } from "react-redux";
 import TestScreen from "./Test/CameraTest";
 import ScanScreen from "./screens/Scan";
+import AboutScreen from "./screens/AboutScreen";
+import ForgetPasswordScreen from "./screens/ForgetPasswordScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -54,11 +56,12 @@ const Navigator = () => {
           name="HerbsDetailsScreen"
           component={HerbsDetailsScreen}
         />
-         <Stack.Screen
-          name="UserProfileScreen"
-          component={UserProfileScreen}
+        <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} />
+        <Stack.Screen name="AboutScreen" component={AboutScreen} />
+        <Stack.Screen
+          name="ForgetPasswordScreen"
+          component={ForgetPasswordScreen}
         />
-        
       </Stack.Navigator>
     </NavigationContainer>
   );
