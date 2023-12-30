@@ -8,7 +8,8 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { savedHerbHandler } from "../redux/herbdatareducer";
 
 export default function HomeScreen({ navigation }) {
   const { userPass, userId, userName } = useSelector((state) => state.user);
@@ -49,6 +50,8 @@ export default function HomeScreen({ navigation }) {
       image: require("../assets/sunflower.jpg"),
     },
   ];
+
+  const dispatch = useDispatch();
 
   // const [image, setImage] = useState("");
 
@@ -101,21 +104,17 @@ export default function HomeScreen({ navigation }) {
 
   const retrieveSaveHerbs = async () => {
     try {
-      const response = await fetch(`${rootRoute}api/saveHerbs`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId }),
-      });
+      const getAllSaveHerbs = await fetch(`${rootRoute}api/retrieveAllHerbs`);
 
       // if (!response.ok) {
       //   // throw new Error("Failed to fetch saved herbs data");
       //   console.log("No saved data");
       // }
-      const data = await response.json();
-      setSaveHerbsData(data);
-      // console.log(data);
+      const res = await getAllSaveHerbs.json();
+      setSaveHerbsData(res.data);
+      // console.log(res.data[0].herbId);
+      dispatch(savedHerbHandler(res.data));
+      // console.log(res.data);
     } catch (error) {
       console.error(error);
     }
@@ -137,7 +136,7 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   const renderItem = ({ item }) => (
-    <View style={{ marginTop: 10, marginHorizontal: 5 }}>
+    <View style={{ marginTop: 10, marginHorizontal: 5 }} key={item.herbId}>
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() =>
@@ -164,24 +163,32 @@ export default function HomeScreen({ navigation }) {
   );
 
   const renderItemSave = ({ item }) => (
-    <View style={{ marginTop: 10, marginHorizontal: 5, width: 80 }}>
+    <View
+      style={{ marginTop: 10, marginHorizontal: 5, width: 80 }}
+      key={item.herbId}
+    >
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() =>
           navigation.navigate("HerbsDetailsScreen", {
             herbName: item.herbName,
-            herbImage: item.image,
-            herbId: item.scannedId,
+            herbImage: item.herbImage,
+            description: item.description,
+            herbId: item.herbId,
+            medicalUse: item.medicinalUses,
+            commonName: item.commonName,
+            howtouse: item.medicinalHowToUse,
             herb: item.herbUses,
+            partUse: item.partUse,
             date: item.dateScanned,
-            action: "savedHerbs",
+            action: "allherbs",
           })
         }
       >
         <Image
           priority="high"
           style={{ height: 80, width: 80, borderRadius: 8 }}
-          source={{ uri: `${rootRoute}upload/${item.image}` }}
+          source={{ uri: `${rootRoute}upload/${item.herbImage}` }}
         />
         <Text style={[{ color: backgroundColor.tertiary }, styles.herbname]}>
           {item.herbName}
@@ -201,17 +208,12 @@ export default function HomeScreen({ navigation }) {
             <Text style={[{ color: backgroundColor.secondary }, styles.label]}>
               Recent Scanned Herbs
             </Text>
-            {/* {image && (
-        <Image
-          style={{ height: 80, width: 80, borderRadius: 8 }}
-          source={{ uri: `${rootRoute}upload/${image}` }}
-        />
-      )} */}
-            {herbs.length > 0 ? (
+
+            {/* {herbs.length > 0 ? (
               <FlatList
                 data={herbs}
                 horizontal
-                keyExtractor={(item) => item.scannedId.toString()}
+                keyExtractor={(item) => item.herbId}
                 renderItem={renderItem}
                 contentContainerStyle={styles.flatListContainer}
               />
@@ -219,15 +221,15 @@ export default function HomeScreen({ navigation }) {
               <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
                 no recent scanned
               </Text>
-            )}
+            )} */}
             <Text style={[{ color: backgroundColor.secondary }, styles.label]}>
-              Save Herbs
+              All herbs
             </Text>
             {saveherbs.length > 0 ? (
               <FlatList
                 data={saveherbs}
                 horizontal
-                keyExtractor={(item) => item.scannedId.toString()}
+                keyExtractor={(item) => item.herbId}
                 renderItem={renderItemSave}
                 contentContainerStyle={styles.flatListContainer}
               />

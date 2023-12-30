@@ -28,6 +28,9 @@ export default function HerbsDetailsScreen({ navigation, route }) {
   const [herbs, setHerbsData] = useState([]);
   const [saveherbs, setSaveHerbsData] = useState([]);
   const [screenShot, setScreenShot] = useState("");
+  const [medical, setMedicalUses] = useState("");
+  const [howToUse, setHowToUse] = useState("");
+  const [partUses, setPartUse] = useState("");
   // const [image, setImage] = useState("");
 
   useLayoutEffect(() => {
@@ -87,27 +90,6 @@ export default function HerbsDetailsScreen({ navigation, route }) {
     }
   };
 
-  const retrieveHerbsDetails = async () => {
-    try {
-      const response = await fetch(`${rootRoute}api/commonNames`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ scannedId: route.params.herbId }),
-      });
-
-      if (!response.ok) {
-        // throw new Error("Failed to fetch saved herbs data");
-        console.log("failed to fetch commonNames");
-      }
-      const data = await response.json();
-      setSaveHerbsData(data);
-      // console.log(data);
-    } catch (error) {
-      // console.error(error);
-    }
-  };
   const saveToFavorites = async () => {
     try {
       const response = await fetch(`${rootRoute}api/saveFavoritesHerbs`, {
@@ -130,7 +112,15 @@ export default function HerbsDetailsScreen({ navigation, route }) {
     }
   };
   useEffect(() => {
-    retrieveHerbsDetails();
+    // let data = route.params.medicalUse;
+
+    // console.log(route.params.medicalUse[0].medicalUses);
+    // console.log(JSON.parse(route.params.howtouse));
+    setHowToUse(JSON.parse(route.params.howtouse));
+    setMedicalUses(route.params.medicalUse[0].medicalUses);
+    console.log(route.params.herbId);
+    setPartUse(JSON.parse(route.params.partUse));
+    // console.log(route.params.medicalUse);
   }, []);
 
   return (
@@ -151,11 +141,15 @@ export default function HerbsDetailsScreen({ navigation, route }) {
               }}
             >
               <Text style={[{ color: backgroundColor.tertiary }, styles.user]}>
-                {route.params.herbName}
+                {route.params.herbName} (
+                <Text style={styles.bottomContentConBestMatchValue}>
+                  {route.params.commonName}
+                </Text>
+                )
               </Text>
 
               <View style={{ marginRight: 30 }}>
-                {route.params.action == "savedHerbs" && (
+                {route.params.action == "recentHerbs" && (
                   <TouchableOpacity onPress={saveToFavorites}>
                     <Pluss />
                   </TouchableOpacity>
@@ -168,7 +162,7 @@ export default function HerbsDetailsScreen({ navigation, route }) {
                 paddingHorizontal: 10,
               }}
             >
-              <Text style={styles.herbUses}>Common Names</Text>
+              <Text style={styles.herbUses}>Description</Text>
               <View
                 style={{
                   flexDirection: "row",
@@ -176,30 +170,76 @@ export default function HerbsDetailsScreen({ navigation, route }) {
                   flexWrap: "wrap",
                 }}
               >
-                {saveherbs ? (
-                  saveherbs.map((herb) => (
-                    <View key={herb.commonId.toString()}>
-                      <Text style={styles.bottomContentConBestMatchValue}>
-                        {herb.commonNames}
+                <Text style={styles.descriptionStyle}>
+                  {route.params.description}
+                </Text>
+              </View>
+
+              {/* //medicinal use */}
+              <Text style={styles.herbUses}>Medicinal Use</Text>
+              <View>
+                {medical ? (
+                  medical.map((val) => (
+                    <View
+                      style={{ flex: 1, flexDirection: "row", marginTop: 8 }}
+                      key={val.med_id}
+                    >
+                      <Text style={{ color: "#316805" }}>
+                        {` > ${val.medicalUses}`}
                       </Text>
                     </View>
                   ))
                 ) : (
-                  <Text>No common names available</Text>
+                  <View style={{ flex: 1, flexDirection: "row", marginTop: 8 }}>
+                    <Text style={{ color: "#316805" }}>
+                      Medicinal Use not Available
+                    </Text>
+                  </View>
                 )}
               </View>
-              <Text style={styles.herbUses}>Herb Uses</Text>
+              {/* //howtouse use */}
+              <Text style={styles.herbUses}>How To Use</Text>
               <View>
-                <Text
-                  style={[
-                    styles.herbUsesCon,
-                    { color: backgroundColor.tertiary },
-                  ]}
-                >
-                  {route.params.herb}
-                </Text>
+                {howToUse ? (
+                  howToUse.map((val, index) => (
+                    <View
+                      style={{ flex: 1, flexDirection: "row", marginTop: 8 }}
+                      key={val.howuse_id}
+                    >
+                      <Text style={{ color: "#316805" }}>
+                        {` > ${val.howto}`}
+                      </Text>
+                    </View>
+                  ))
+                ) : (
+                  <View style={{ flex: 1, flexDirection: "row", marginTop: 8 }}>
+                    <Text style={{ color: "#316805" }}>
+                      How to use not Available
+                    </Text>
+                  </View>
+                )}
               </View>
-              {route.params.action == "savedHerbs" ? (
+              <Text style={styles.herbUses}>Part Use</Text>
+              {partUses ? (
+                partUses.map((item) => (
+                  <View
+                    style={{ flex: 1, flexDirection: "row", marginTop: 8 }}
+                    key={item.part_id}
+                  >
+                    <Text
+                      style={{ color: "#316805" }}
+                    >{` > ${item.partUsed}`}</Text>
+                  </View>
+                ))
+              ) : (
+                <View style={{ flex: 1, flexDirection: "row", marginTop: 8 }}>
+                  <Text style={{ color: "#316805" }}>
+                    Part uses not Available
+                  </Text>
+                </View>
+              )}
+
+              {route.params.action != "allherbs" ? (
                 <></>
               ) : (
                 <TouchableOpacity onPress={saveScannedHerbs}>
@@ -254,9 +294,18 @@ export default function HerbsDetailsScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+  descriptionStyle: {
+    // backgroundColor: "#B3E468",
+    marginRight: 10,
+    // paddingVertical: 4,
+    // paddingHorizontal: 20,
+    borderRadius: 8,
+    color: "#316805",
+    fontSize: 16,
+  },
   bottomContentConBestMatchValue: {
     marginTop: 5,
-    backgroundColor: "#B3E468",
+    // backgroundColor: "#B3E468",
     marginRight: 10,
     paddingVertical: 4,
     paddingHorizontal: 20,

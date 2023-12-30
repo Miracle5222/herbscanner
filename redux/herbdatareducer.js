@@ -7,6 +7,7 @@ const herbDataSlice = createSlice({
     match: "",
     herbsUses: "",
     image: "",
+    savedHerbsData: [],
   },
   reducers: {
     herbDataHandler(state, action) {
@@ -21,11 +22,15 @@ const herbDataSlice = createSlice({
     herbImageHandler(state, action) {
       state.image = action.payload;
     },
+    savedHerbHandler(state, action) {
+      state.savedHerbsData = action.payload;
+    },
   },
 });
 
 export const {
   herbBestMatchHandler,
+  savedHerbHandler,
   herbDataHandler,
   herbImageHandler,
   herbUsesHandler,

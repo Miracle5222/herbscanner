@@ -259,15 +259,16 @@ export default function ScannerScreen({ navigation, route }) {
 
       if (response.ok) {
         const responseData = await response.json();
-        // console.log(
-        //   "Image uploaded successfully:",
-        //   responseData.data.results[0].score
-        // );
+        console.log(
+          "Image uploaded successfully:",
+          responseData.data.results[0].gbif.id
+        );
 
         // console.log(herbdata.species.commonNames);
         // setBestMatch(responseData.data.bestMatch);
 
         // setHerbData(responseData.data.results[0]);
+        console.log(savedHerbsData);
 
         dispatch(herbBestMatchHandler(responseData.data.bestMatch));
         dispatch(herbDataHandler(responseData.data.results[0]));

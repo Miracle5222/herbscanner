@@ -138,23 +138,35 @@ export default function ProfileScreen({ navigation }) {
   //retrieve saved herbs
   const retrieveSaveHerbs = async () => {
     try {
-      const response = await fetch(`${rootRoute}api/saveHerbs`, {
+      const getSavedHerbs = await fetch(`${rootRoute}api/saveHerbs`, {
         method: "POST",
         headers: {
+          Accept: "application/json",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ userId }),
       });
-
-      if (!response.ok) {
-        // throw new Error("Failed to fetch saved herbs data");
-        console.log("No saved data");
-      }
-      const data = await response.json();
+      const data = await getSavedHerbs.json();
+      console.log(data);
       setSaveHerbsData(data);
+      // if (!getSavedHerbs.ok) {
+      //   console.log("No saved data");
+      // } else {
+      //   setToolTipVisibleHerbs(false);
+      //   const data = await getSavedHerbs.json();
+      //   Alert.alert(data?.message);
+
+      //   // Update the selectedItemIndexHerbs with the new index
+      // }
     } catch (error) {
       console.error(error);
     }
+    // if (!response.ok) {
+    //   // throw new Error("Failed to fetch saved herbs data");
+    //   console.log("No saved data");
+    // }
+
+    // console.log(res.data);
   };
 
   //retrieve favorites herbs
@@ -174,7 +186,7 @@ export default function ProfileScreen({ navigation }) {
       }
       const data = await response.json();
       // setSaveHerbsData(data);
-      // console.log(data);
+      console.log(data);
       setFavorites(data);
     } catch (error) {
       console.error(error);
@@ -204,9 +216,14 @@ export default function ProfileScreen({ navigation }) {
           onPress={() =>
             navigation.navigate("HerbsDetailsScreen", {
               herbName: item.herbName,
-              herbImage: item.image,
+              herbImage: item.herbImage,
+              description: item.description,
               herbId: item.scannedId,
+              medicalUse: item.medicinalUses,
+              commonName: item.commonName,
+              howtouse: item.medicinalHowToUse,
               herb: item.herbUses,
+              partUse: item.partUse,
               date: item.dateScanned,
               action: "savedHerbs",
             })
@@ -215,7 +232,7 @@ export default function ProfileScreen({ navigation }) {
           <Image
             priority="high"
             style={{ height: 200, width: 200, borderRadius: 8 }}
-            source={{ uri: `${rootRoute}upload/${item.image}` }}
+            source={{ uri: `${rootRoute}upload/${item.herbImage}` }}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -261,18 +278,18 @@ export default function ProfileScreen({ navigation }) {
               <View>
                 <TouchableOpacity
                   onPress={() => {
-                    addToFavorites(item.herbsId.toString()); // Pass the index to the addToFavorites function
+                    addToFavorites(item.herbId); // Pass the index to the addToFavorites function
                   }}
                 >
                   <Text style={styles.popUp}>Add to Favorites</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={() => {
-                    removeFromSavedHerbs(item.herbsId.toString());
+                    removeFromSavedHerbs(item.herbId);
                   }}
                 >
                   <Text style={styles.popUp}>Remove saved Herbs</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
             )}
           </View>
@@ -292,9 +309,14 @@ export default function ProfileScreen({ navigation }) {
           onPress={() =>
             navigation.navigate("HerbsDetailsScreen", {
               herbName: item.herbName,
-              herbImage: item.image,
+              herbImage: item.herbImage,
+              description: item.description,
               herbId: item.scannedId,
+              medicalUse: item.medicinalUses,
+              commonName: item.commonName,
+              howtouse: item.medicinalHowToUse,
               herb: item.herbUses,
+              partUse: item.partUse,
               date: item.dateScanned,
               action: "savedHerbs",
             })
@@ -303,7 +325,7 @@ export default function ProfileScreen({ navigation }) {
           <Image
             priority="high"
             style={{ height: 200, width: 200, borderRadius: 8 }}
-            source={{ uri: `${rootRoute}upload/${item.image}` }}
+            source={{ uri: `${rootRoute}upload/${item.herbImage}` }}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -373,49 +395,48 @@ export default function ProfileScreen({ navigation }) {
   return (
     <ScrollView>
       <View style={styles.container}>
-        {favorites.length > 0 || saveherbs.length > 0 ? (
-          <>
-            <Text style={styles.herbUses}>Favorites</Text>
-            {favorites.length > 0 ? (
-              <FlatList
-                data={favorites}
-                horizontal
-                keyExtractor={(item) => item.herbsId.toString()}
-                renderItem={renderItemFavorites}
-                contentContainerStyle={styles.flatListContainer}
-              />
-            ) : (
-              <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
-                No saved Favorites
-              </Text>
-            )}
-
-            <Text
-              style={[
-                { color: backgroundColor.secondary, paddingTop: 15 },
-                styles.herbUses,
-              ]}
-            >
-              Saved Herbs
+        {/* {favorites.length > 0 || saveherbs.length > 0 ? ( */}
+        <>
+          <Text style={styles.herbUses}>Favorites</Text>
+          {favorites.length > 0 ? (
+            <FlatList
+              data={favorites}
+              horizontal
+              keyExtractor={(item) => item.herbId}
+              renderItem={renderItemFavorites}
+              contentContainerStyle={styles.flatListContainer}
+            />
+          ) : (
+            <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
+              No saved Favorites
             </Text>
+          )}
 
-            {saveherbs.length > 0 ? (
-              <FlatList
-                data={saveherbs}
-                horizontal
-                keyExtractor={(item) => item.herbsId.toString()}
-                renderItem={renderItemSave}
-                // contentContainerStyle={styles.flatListContainer}
-              />
-            ) : (
-              <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
-                No saved Herbs
-              </Text>
-            )}
-          </>
-        ) : (
-          <ActivityIndicator size="large" color="#00ff00" />
-        )}
+          <Text
+            style={[
+              { color: backgroundColor.secondary, paddingTop: 15 },
+              styles.herbUses,
+            ]}
+          >
+            Saved Herbs
+          </Text>
+
+          {saveherbs.length > 0 ? (
+            <FlatList
+              data={saveherbs}
+              horizontal
+              keyExtractor={(item) => item.herbsId}
+              renderItem={renderItemSave}
+              // contentContainerStyle={styles.flatListContainer}
+            />
+          ) : (
+            <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
+              No saved Herbs
+            </Text>
+          )}
+        </>
+        {/* // ) : ( // <ActivityIndicator size="large" color="#00ff00" />
+        // )} */}
       </View>
     </ScrollView>
   );
