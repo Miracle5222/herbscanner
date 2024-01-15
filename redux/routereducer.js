@@ -4,7 +4,7 @@ const routeSlice = createSlice({
   name: "route",
   initialState: {
     // rootRoute: "https://herbscanner.onrender.com/",
-    rootRoute: "https://7b19-110-54-203-27.ngrok-free.app/",
+    rootRoute: "https://1e4a-64-226-56-80.ngrok-free.app/",
   },
   reducers: {
     routeRouter(state, action) {

@@ -28,8 +28,8 @@ export default function HerbsDetailsScreen({ navigation, route }) {
   const [herbs, setHerbsData] = useState([]);
   const [saveherbs, setSaveHerbsData] = useState([]);
   const [screenShot, setScreenShot] = useState("");
-  const [medical, setMedicalUses] = useState("");
-  const [howToUse, setHowToUse] = useState("");
+  const [medical, setMedicalUses] = useState([]);
+  const [howToUse, setHowToUse] = useState([]);
   const [partUses, setPartUse] = useState("");
   // const [image, setImage] = useState("");
 
@@ -116,10 +116,28 @@ export default function HerbsDetailsScreen({ navigation, route }) {
 
     // console.log(route.params.medicalUse[0].medicalUses);
     // console.log(JSON.parse(route.params.howtouse));
+    // Assuming data is the parsed JSON data
+    let data = JSON.parse(route.params.medicalUse);
+    const parsedData = data.map(item => {
+      const medicalUsesString = String.fromCharCode.apply(null, item.medicalUses.data);
+
+      return {
+        med_id: item.med_id,
+        medicalUses: medicalUsesString,
+        scannedId: item.scannedId
+      };
+    });
+
+    console.log(parsedData);
+
     setHowToUse(JSON.parse(route.params.howtouse));
-    setMedicalUses(route.params.medicalUse[0].medicalUses);
-    console.log(route.params.herbId);
+    setMedicalUses(parsedData);
+
+    // console.log(JSON.parse(route.params.medicalUse));
+    // console.log(JSON.parse(route.params.howtouse));
     setPartUse(JSON.parse(route.params.partUse));
+
+
     // console.log(route.params.medicalUse);
   }, []);
 

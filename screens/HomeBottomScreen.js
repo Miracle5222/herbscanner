@@ -112,7 +112,7 @@ export default function HomeScreen({ navigation }) {
       // }
       const res = await getAllSaveHerbs.json();
       setSaveHerbsData(res.data);
-      // console.log(res.data[0].herbId);
+      // console.log(res.data);
       dispatch(savedHerbHandler(res.data));
       // console.log(res.data);
     } catch (error) {

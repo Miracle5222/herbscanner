@@ -3,9 +3,9 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 const userSlice = createSlice({
   name: "herbdata",
   initialState: {
-    userName: "",
-    userPass: "",
-    userId: "",
+    userName: "mario",
+    userPass: "test",
+    userId: "127",
   },
   reducers: {
     userNameHandler(state, action) {

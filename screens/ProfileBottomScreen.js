@@ -102,7 +102,7 @@ export default function ProfileScreen({ navigation }) {
         Alert.alert(data?.message);
       }
 
-      console.log(data);
+      // console.log(data);
       // setSaveHerbsData(data);
     } catch (error) {
       console.error(error);
@@ -186,7 +186,7 @@ export default function ProfileScreen({ navigation }) {
       }
       const data = await response.json();
       // setSaveHerbsData(data);
-      console.log(data);
+      // console.log(data);
       setFavorites(data);
     } catch (error) {
       console.error(error);
@@ -210,6 +210,9 @@ export default function ProfileScreen({ navigation }) {
 
   const renderItemSave = ({ item, index }) => (
     <View style={{ marginTop: 10, marginHorizontal: 5, width: 200 }}>
+      <Text style={[{ color: backgroundColor.tertiary, marginBottom: 10 }, styles.herbname]}>
+        {item.herbName}
+      </Text>
       <View>
         <TouchableOpacity
           activeOpacity={0.8}
@@ -218,14 +221,14 @@ export default function ProfileScreen({ navigation }) {
               herbName: item.herbName,
               herbImage: item.herbImage,
               description: item.description,
-              herbId: item.scannedId,
-              medicalUse: item.medicinalUses,
+              herbId: item.herbsId,
+              medicalUses: item.medicinalUses,
               commonName: item.commonName,
               howtouse: item.medicinalHowToUse,
               herb: item.herbUses,
               partUse: item.partUse,
               date: item.dateScanned,
-              action: "savedHerbs",
+              action: "allherbs",
             })
           }
         >
@@ -278,26 +281,24 @@ export default function ProfileScreen({ navigation }) {
               <View>
                 <TouchableOpacity
                   onPress={() => {
-                    addToFavorites(item.herbId); // Pass the index to the addToFavorites function
+                    addToFavorites(item.herbsId); // Pass the index to the addToFavorites function
                   }}
                 >
                   <Text style={styles.popUp}>Add to Favorites</Text>
                 </TouchableOpacity>
-                {/* <TouchableOpacity
+                <TouchableOpacity
                   onPress={() => {
-                    removeFromSavedHerbs(item.herbId);
+                    removeFromSavedHerbs(item.herbsId);
                   }}
                 >
                   <Text style={styles.popUp}>Remove saved Herbs</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
               </View>
             )}
           </View>
         </TouchableOpacity>
       </View>
-      <Text style={[{ color: backgroundColor.tertiary }, styles.herbname]}>
-        {item.herbName}
-      </Text>
+
     </View>
   );
 
@@ -402,7 +403,7 @@ export default function ProfileScreen({ navigation }) {
             <FlatList
               data={favorites}
               horizontal
-              keyExtractor={(item) => item.herbId}
+              keyExtractor={(item) => item.herbsId}
               renderItem={renderItemFavorites}
               contentContainerStyle={styles.flatListContainer}
             />
@@ -427,7 +428,7 @@ export default function ProfileScreen({ navigation }) {
               horizontal
               keyExtractor={(item) => item.herbsId}
               renderItem={renderItemSave}
-              // contentContainerStyle={styles.flatListContainer}
+            // contentContainerStyle={styles.flatListContainer}
             />
           ) : (
             <Text style={[{ color: backgroundColor.tertiary }, styles.label]}>
