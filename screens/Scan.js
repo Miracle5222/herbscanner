@@ -9,6 +9,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Dimensions,
+  Alert,
 } from "react-native";
 import { Camera } from "expo-camera";
 import { useDispatch, useSelector } from "react-redux";
@@ -37,7 +38,9 @@ export default function ScanScreen({ navigation }) {
     (state) => state.herbData
   );
 
-  const [indicatorVisible, setIndicatorVisible] = useState(false);
+  const { savedHerbsData } = useSelector((state) => state.herbData);
+  const [indicator, setIndicatorVisibility] = useState(false);
+
 
   const dispatch = useDispatch();
 
@@ -49,7 +52,7 @@ export default function ScanScreen({ navigation }) {
   }, []);
 
   const takePicture = async () => {
-    setIndicatorVisible(true);
+    setIndicatorVisibility(true);
     if (cameraRef) {
       const pictureOptions = {
         quality: 1, // Adjust quality (0.0 - 1.0)
@@ -59,68 +62,92 @@ export default function ScanScreen({ navigation }) {
       setCapturedImage(photo);
       dispatch(camerahandler(photo.uri));
       dispatch(herbImageHandler(photo.uri));
-
+      uploadImage((photo.uri));
       console.log(photo);
       //   saveToCameraRoll(photo.uri);
       // console.log(photo.uri);
     }
   };
-  // console.log(herbdata.species.commonNames);
 
-  //   const saveToCameraRoll = async (uri) => {
-  //     if (Platform.OS === "android") {
-  //       const asset = await MediaLibrary.createAssetAsync(uri);
-  //       await MediaLibrary.createAlbumAsync("CameraScanApp", asset, false);
-  //     } else {
-  //       await MediaLibrary.saveToLibraryAsync(uri);
-  //     }
-  //   };
+  const uploadImage = async (uri) => {
+    const formData = new FormData();
+    formData.append("image", {
+      uri,
+      name: "image.jpg",
+      type: "image/jpeg",
+    });
+    const wait = (milliseconds) => new Promise(resolve => setTimeout(resolve, milliseconds));
 
-  useEffect(() => {
-    if (hasPermission && herbImage) {
-      const uploadImage = async () => {
-        const formData = new FormData();
-        formData.append("image", {
-          uri: herbImage,
-          name: "image.jpg",
-          type: "image/jpeg",
-        });
+    try {
+      let response = await Promise.race([
+        fetch(`${rootRoute}newimage`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }),
+        wait(55000), // 15 seconds timeout
+      ]);
 
-        try {
-          let response = await fetch(`${rootRoute}image`, {
-            method: "POST",
-            body: formData,
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
+      if (response && response.ok) {
+        const responseData = await response.json();
+        console.log(
+          "Image uploaded successfully:",
+          // responseData.data.results[0].gbif.id
+        );
 
-          if (response.ok) {
-            const responseData = await response.json();
-            // console.log(
-            //   "Image uploaded successfully:",
-            //   responseData.data.results[0].score
-            // );
-            // setHerbData(responseData.data.results);
-            // console.log(responseData);
+        console.log(responseData.herbsIds[0].data);
 
-            dispatch(herbBestMatchHandler(responseData.data.bestMatch));
-            dispatch(herbDataHandler(responseData.data.results[0]));
-            setIndicatorVisible(false);
-            navigation.navigate("Scan");
-          } else {
-            console.error("Error uploading image:", response.statusText);
+        // console.log(savedHerbsData);
+        if (savedHerbsData) {
+          const filter = savedHerbsData.map(entry => entry.herbId);
+          const isHerbIdPresent = filter.includes(responseData.herbsIds[0].data);
+
+          if (isHerbIdPresent) {
+
+            const matchingEntry = savedHerbsData.find(entry => entry.herbId === responseData.herbsIds[0].data);
+            if (isHerbIdPresent) {
+              navigation.navigate("HerbsDetailsScreen", {
+                herbName: matchingEntry.herbName,
+                herbImage: matchingEntry.herbImage,
+                description: matchingEntry.description,
+                herbId: matchingEntry.herbId,
+                medicalUse: matchingEntry.medicinalUses,
+                commonName: matchingEntry.commonName,
+                howtouse: matchingEntry.medicinalHowToUse,
+                herb: matchingEntry.herbUses,
+                partUse: matchingEntry.partUse,
+                date: matchingEntry.dateScanned,
+                action: "allherbs",
+              })
+              setIndicatorVisibility(false);
+            }
+            // Now 'matchingEntry' contains the specific data you want
+            console.log("Matching entry found:", matchingEntry.herbName);
+            // console.log("Replace this with savedHerbsData data if filter.includes is true with the same herbsIds to savedHerbsData");
           }
-        } catch (error) {
-          console.log("Error uploading image:", error);
-        } finally {
-          // console.log("clear state");
-          dispatch(camerahandler(""));
         }
-      };
-      uploadImage();
+        // console.log(herbdata.species.commonNames);
+        // setBestMatch(responseData.data.bestMatch);
+
+        // setHerbData(responseData.data.results[0]);
+        // console.log(savedHerbsData);
+
+        // dispatch(herbBestMatchHandler(responseData.data.bestMatch));
+        // dispatch(herbDataHandler(responseData.data.results[0]));
+      } else {
+        Alert.alert("Herbs doesn't exist!")
+        setIndicatorVisibility(false)
+        navigation.goBack();
+        // console.error("Error uploading image:");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
     }
-  }, [herbImage]);
+  };
+
+
 
   if (hasPermission === null) {
     return <View />;
@@ -138,7 +165,7 @@ export default function ScanScreen({ navigation }) {
         ratio="16:9"
         zoom={0}
       />
-      {indicatorVisible && (
+      {indicator && (
         <View
           style={{
             position: "absolute",

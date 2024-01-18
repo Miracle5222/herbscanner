@@ -37,9 +37,10 @@ export default function ProfileScreen({ navigation }) {
   const [selectedItemIndexHerbs, setSelectedItemIndexHerbs] = useState(0); //herbs tooltop
   const [toolTipVisibleHerbs, setToolTipVisibleHerbs] = useState(false); //herbs tooltop
   const [favorites, setFavorites] = useState([]);
-
+  const { savedHerbsData } = useSelector((state) => state.herbData);
   const [open, setOpen] = useState(false);
-
+  const [filteredSavedHerbs, setFilteredSavedHerbs] = useState([]);
+  const [filteredFavoritesHerbs, setfilteredFavoritesHerbs] = useState([]);
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -55,6 +56,57 @@ export default function ProfileScreen({ navigation }) {
       headerTintColor: "#ffffff", //color of title
     });
   }, [navigation]);
+
+  const getFavoritesData = async () => {
+    // Ensure that data is available
+    if (favorites.length === 0 || savedHerbsData.length === 0) {
+      console.log("Data not available yet");
+      return;
+    }
+
+    let scannedIds = favorites.map(item => item.herbsId);
+
+    // Log scannedIds for debugging
+    console.log("Scanned IDs:", scannedIds);
+
+    // Filter savedHerbsData based on scannedIds
+    let filteredData = savedHerbsData.filter(item => scannedIds.includes(item.herbId));
+
+    // Log or process the filtered data
+    console.log("Filtered Data favorites:", filteredData);
+    setfilteredFavoritesHerbs(filteredData);
+    // If you need to do something with the filtered data, you can add your logic here
+    // For example, set it to a state variable if you're using React state
+  };
+
+  const getSavedData = async () => {
+    // Ensure that data is available
+    if (saveherbs.length === 0 || savedHerbsData.length === 0) {
+      console.log("Data not available yet");
+      return;
+    }
+
+    let scannedIds = saveherbs.map(item => item.scannedId);
+
+    // Log scannedIds for debugging
+    // console.log("Scanned IDs:", scannedIds);
+
+    // Filter savedHerbsData based on scannedIds
+    let filteredData = savedHerbsData.filter(item => scannedIds.includes(item.herbId));
+
+    // Log or process the filtered data
+    // console.log("Filtered Data:", filteredData);
+    setFilteredSavedHerbs(filteredData);
+    // If you need to do something with the filtered data, you can add your logic here
+    // For example, set it to a state variable if you're using React state
+  };
+
+
+  useEffect(() => {
+    getSavedData();
+    getFavoritesData();
+  }, [saveherbs, savedHerbsData]);
+
 
   const removeFromFavorites = async (id) => {
     try {
@@ -147,7 +199,7 @@ export default function ProfileScreen({ navigation }) {
         body: JSON.stringify({ userId }),
       });
       const data = await getSavedHerbs.json();
-      console.log(data);
+      // console.log(data);
       setSaveHerbsData(data);
       // if (!getSavedHerbs.ok) {
       //   console.log("No saved data");
@@ -221,14 +273,14 @@ export default function ProfileScreen({ navigation }) {
               herbName: item.herbName,
               herbImage: item.herbImage,
               description: item.description,
-              herbId: item.herbsId,
-              medicalUses: item.medicinalUses,
+              herbId: item.herbId,
+              medicalUse: item.medicinalUses,
               commonName: item.commonName,
               howtouse: item.medicinalHowToUse,
               herb: item.herbUses,
               partUse: item.partUse,
               date: item.dateScanned,
-              action: "allherbs",
+              action: "saveHerbs",
             })
           }
         >
@@ -281,7 +333,7 @@ export default function ProfileScreen({ navigation }) {
               <View>
                 <TouchableOpacity
                   onPress={() => {
-                    addToFavorites(item.herbsId); // Pass the index to the addToFavorites function
+                    addToFavorites(item.herbId); // Pass the index to the addToFavorites function
                   }}
                 >
                   <Text style={styles.popUp}>Add to Favorites</Text>
@@ -312,14 +364,14 @@ export default function ProfileScreen({ navigation }) {
               herbName: item.herbName,
               herbImage: item.herbImage,
               description: item.description,
-              herbId: item.scannedId,
+              herbId: item.herbId,
               medicalUse: item.medicinalUses,
               commonName: item.commonName,
               howtouse: item.medicinalHowToUse,
               herb: item.herbUses,
               partUse: item.partUse,
               date: item.dateScanned,
-              action: "savedHerbs",
+              action: "favorites",
             })
           }
         >
@@ -399,11 +451,11 @@ export default function ProfileScreen({ navigation }) {
         {/* {favorites.length > 0 || saveherbs.length > 0 ? ( */}
         <>
           <Text style={styles.herbUses}>Favorites</Text>
-          {favorites.length > 0 ? (
+          {filteredFavoritesHerbs.length > 0 ? (
             <FlatList
-              data={favorites}
+              data={filteredFavoritesHerbs}
               horizontal
-              keyExtractor={(item) => item.herbsId}
+              keyExtractor={(item) => item.herbId}
               renderItem={renderItemFavorites}
               contentContainerStyle={styles.flatListContainer}
             />
@@ -422,11 +474,11 @@ export default function ProfileScreen({ navigation }) {
             Saved Herbs
           </Text>
 
-          {saveherbs.length > 0 ? (
+          {filteredSavedHerbs.length > 0 ? (
             <FlatList
-              data={saveherbs}
+              data={filteredSavedHerbs}
               horizontal
-              keyExtractor={(item) => item.herbsId}
+              keyExtractor={(item) => item.herbId}
               renderItem={renderItemSave}
             // contentContainerStyle={styles.flatListContainer}
             />

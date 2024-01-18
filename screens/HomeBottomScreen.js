@@ -18,6 +18,7 @@ export default function HomeScreen({ navigation }) {
   const { rootRoute } = useSelector((state) => state.mainRoute); //root route to connect server
   const [herbs, setHerbsData] = useState([]);
   const [saveherbs, setSaveHerbsData] = useState([]);
+  const { savedHerbsData } = useSelector((state) => state.herbData);
   const herb = [
     {
       id: "2757280",
@@ -112,6 +113,7 @@ export default function HomeScreen({ navigation }) {
       // }
       const res = await getAllSaveHerbs.json();
       setSaveHerbsData(res.data);
+      
       // console.log(res.data);
       dispatch(savedHerbHandler(res.data));
       // console.log(res.data);
@@ -200,7 +202,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View>
-        {herbs.length > 0 || saveherbs.length > 0 ? (
+        {herbs.length > 0 || savedHerbsData.length > 0 ? (
           <>
             <Text style={[{ color: backgroundColor.secondary }, styles.user]}>
               Welcome, {userName}
@@ -225,7 +227,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={[{ color: backgroundColor.secondary }, styles.label]}>
               All herbs
             </Text>
-            {saveherbs.length > 0 ? (
+            {savedHerbsData.length > 0 ? (
               <FlatList
                 data={saveherbs}
                 horizontal

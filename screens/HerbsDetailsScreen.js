@@ -113,7 +113,7 @@ export default function HerbsDetailsScreen({ navigation, route }) {
   };
   useEffect(() => {
     // let data = route.params.medicalUse;
-
+    console.log(route.params);
     // console.log(route.params.medicalUse[0].medicalUses);
     // console.log(JSON.parse(route.params.howtouse));
     // Assuming data is the parsed JSON data

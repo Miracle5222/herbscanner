@@ -41,7 +41,7 @@ export default function ScannerScreen({ navigation, route }) {
   const [hasPermission, setHasPermission] = useState(null); //camera permission
   const [cameraRef, setCameraRef] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [visible, setVisibility] = useState(true); //modal visibility
+
   // const [match, setBestMatch] = useState(""); //get/set herb name best match
   const [uses, setUses] = useState(``); //get/set herb uses
   const [benefits, setBenefits] = useState(``); //get/set herb benefits
@@ -51,7 +51,8 @@ export default function ScannerScreen({ navigation, route }) {
   );
   const { backgroundColor } = useSelector((state) => state.theme);
   const { userPass, userId, userName } = useSelector((state) => state.user);
-
+  const { savedHerbsData } = useSelector((state) => state.herbData);
+  const [indicator, setIndicatorVisibility] = useState(false);
   const dispatch = useDispatch();
 
   useLayoutEffect(() => {
@@ -70,12 +71,6 @@ export default function ScannerScreen({ navigation, route }) {
     });
   }, [navigation,]);
 
-  useEffect(() => {
-    dispatch(herbImageHandler(""));
-
-    dispatch(herbDataHandler(""));
-    dispatch(herbBestMatchHandler(""));
-  }, []);
 
   useEffect(() => {
     (async () => {
@@ -84,112 +79,17 @@ export default function ScannerScreen({ navigation, route }) {
     })();
   }, []);
 
-  const saveScannedHerbs = async () => {
-    try {
-      const response = await fetch(`${rootRoute}api/saveScannedHerbs`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: herbdata?.gbif?.id,
-          userId,
-        }),
-      });
 
-      const responseData = await response.json(); // Await the response.json() promise
-      console.log(responseData);
-      Alert.alert(responseData?.message);
-    } catch (error) {
-      // console.error("Error sending message:", error);
-      console.log("failed to save herbs");
-    }
-  };
 
-  //save scanned herbs
 
-  const saveScanned = async () => {
-    const formData = new FormData();
-    formData.append("image", {
-      uri: image,
-      name: "image.jpg",
-      type: "image/jpeg",
-    });
-    formData.append(
-      "herbs",
-      JSON.stringify({
-        match,
-        herbsUses,
-        commonName: herbdata?.species?.commonNames,
-        score: herbdata.score,
-        id: herbdata?.gbif?.id,
-        userId,
-      })
-    );
-    try {
-      const response = await fetch(`${rootRoute}saveScanned`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        body: formData,
-      });
 
-      const responseData = await response.json();
-      // console.log(responseData);
-      // Alert.alert(
-      //   "Alert",
-      //   responseData.results,
-      //   [
-      //     {
-      //       text: "Cancel",
-      //       style: "cancel",
-      //     },
-      //     {
-      //       text: "OK",
-      //       onPress: () => console.log("OK Pressed"),
-      //     },
-      //   ],
-      //   { cancelable: false }
-      // );
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  };
-
-  // const herbBenefits = async () => {
-  //   try {
-  //     const response = await fetch(`${rootRoute}benefits`, {
-  //       method: "POST",
-  //       headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         message: `what is the benefits of ${benefits}`,
-  //       }), // Sending a message in the request body
-  //     });
-
-  //     const responseData = await response.json();
-  //     console.log("Server response:", responseData.response);
-
-  //     setBenefits(responseData.response);
-  //   } catch (error) {
-  //     console.error("Error sending message:", error);
+  // useEffect(() => {
+  //   if (herbdata.length > 0) {
+  //     setVisibility(!visible);
   //   }
-  // };
-  useEffect(() => {
-    if (herbdata.length > 0) {
-      setVisibility(!visible);
-    }
 
-  }, [herbdata]);
-  useEffect(() => {
-    if (herbsUses != "") {
-      saveScanned();
-    }
-  }, [herbsUses]);
+  // }, [herbdata]);
+
 
   if (hasPermission === null) {
     return <View />;
@@ -197,9 +97,9 @@ export default function ScannerScreen({ navigation, route }) {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
-  const toggleBottomNavigationView = () => {
-    setVisibility(!visible);
-  };
+  // const toggleBottomNavigationView = () => {
+  //   setVisibility(!visible);
+  // };
 
   //upload image
   const pickImage = async () => {
@@ -213,6 +113,7 @@ export default function ScannerScreen({ navigation, route }) {
       // setImage(result.assets[0].uri);
       dispatch(herbImageHandler(result.assets[0].uri));
       uploadImage(result.assets[0].uri);
+      setIndicatorVisibility(true);
     }
   };
 
@@ -223,24 +124,58 @@ export default function ScannerScreen({ navigation, route }) {
       name: "image.jpg",
       type: "image/jpeg",
     });
+    const wait = (milliseconds) => new Promise(resolve => setTimeout(resolve, milliseconds));
 
     try {
-      let response = await fetch(`${rootRoute}newimage`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      let response = await Promise.race([
+        fetch(`${rootRoute}newimage`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }),
+        wait(15000), // 15 seconds timeout
+      ]);
 
-      if (response.ok) {
+      if (response && response.ok) {
         const responseData = await response.json();
         console.log(
           "Image uploaded successfully:",
           // responseData.data.results[0].gbif.id
         );
-        console.log(responseData);
 
+        console.log(responseData.herbsIds[0].data);
+
+        // console.log(savedHerbsData);
+        if (savedHerbsData) {
+          const filter = savedHerbsData.map(entry => entry.herbId);
+          const isHerbIdPresent = filter.includes(responseData.herbsIds[0].data);
+
+          if (isHerbIdPresent) {
+
+            const matchingEntry = savedHerbsData.find(entry => entry.herbId === responseData.herbsIds[0].data);
+            if (isHerbIdPresent) {
+              navigation.navigate("HerbsDetailsScreen", {
+                herbName: matchingEntry.herbName,
+                herbImage: matchingEntry.herbImage,
+                description: matchingEntry.description,
+                herbId: matchingEntry.herbId,
+                medicalUse: matchingEntry.medicinalUses,
+                commonName: matchingEntry.commonName,
+                howtouse: matchingEntry.medicinalHowToUse,
+                herb: matchingEntry.herbUses,
+                partUse: matchingEntry.partUse,
+                date: matchingEntry.dateScanned,
+                action: "allherbs",
+              })
+              setIndicatorVisibility(false);
+            }
+            // Now 'matchingEntry' contains the specific data you want
+            console.log("Matching entry found:", matchingEntry.herbName);
+            // console.log("Replace this with savedHerbsData data if filter.includes is true with the same herbsIds to savedHerbsData");
+          }
+        }
         // console.log(herbdata.species.commonNames);
         // setBestMatch(responseData.data.bestMatch);
 
@@ -250,7 +185,9 @@ export default function ScannerScreen({ navigation, route }) {
         // dispatch(herbBestMatchHandler(responseData.data.bestMatch));
         // dispatch(herbDataHandler(responseData.data.results[0]));
       } else {
-        console.error("Error uploading image:", response.statusText);
+        Alert.alert("Herbs doesn't exist!")
+        setIndicatorVisibility(false)
+        // console.error("Error uploading image:");
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -265,7 +202,7 @@ export default function ScannerScreen({ navigation, route }) {
         ref={(ref) => setCameraRef(ref)}
         type={Camera.Constants.Type.back}
       /> */}
-      <BottomSheet
+      {/* <BottomSheet
         visible={visible}
         onBackButtonPress={toggleBottomNavigationView}
         //Toggling the visibility state on the click of the back botton
@@ -325,22 +262,7 @@ export default function ScannerScreen({ navigation, route }) {
               </View>
 
               <View>
-                <TouchableOpacity onPress={saveScannedHerbs}>
-                  <Text
-                    style={{
-                      padding: 12,
-                      backgroundColor: "#B3E468",
-                      textAlign: "center",
-                      fontWeight: "bold",
-                      color: "#ffffff",
-                      borderRadius: 12,
-                      marginTop: 10,
-                      marginBottom: 10,
-                    }}
-                  >
-                    Save
-                  </Text>
-                </TouchableOpacity>
+
                 <TouchableOpacity
                   onPress={() => {
                     navigation.navigate("ScanScreen");
@@ -365,7 +287,7 @@ export default function ScannerScreen({ navigation, route }) {
             </View>
           </ScrollView>
         </View>
-      </BottomSheet>
+      </BottomSheet> */}
       {popUp && (
         <View style={styles.popup}>
           <View style={styles.exit}>
@@ -393,6 +315,8 @@ export default function ScannerScreen({ navigation, route }) {
       )}
 
       <View style={styles.scannerContainer}>
+
+        {indicator && <View style={{ top: -100, width: 160, position: "absolute" }}><ActivityIndicator size="large" color="#00ff00" /></View>}
         <TouchableOpacity
           style={styles.scannerCircle}
           onPress={() => setPopUp(!popUp)}
