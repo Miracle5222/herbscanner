@@ -26,7 +26,7 @@ import {
   herbBestMatchHandler,
   herbDataHandler,
   herbImageHandler,
-
+  herbUsesHandler,
 } from "../redux/herbdatareducer";
 const Top = createMaterialTopTabNavigator();
 const { width, height } = Dimensions.get("screen");
@@ -41,7 +41,7 @@ export default function ScannerScreen({ navigation, route }) {
   const [hasPermission, setHasPermission] = useState(null); //camera permission
   const [cameraRef, setCameraRef] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [visible, setVisibility] = useState(true); //modal visibility
+  const [visible, setVisibility] = useState(false); //modal visibility
   // const [match, setBestMatch] = useState(""); //get/set herb name best match
   const [uses, setUses] = useState(``); //get/set herb uses
   const [benefits, setBenefits] = useState(``); //get/set herb benefits
@@ -68,11 +68,11 @@ export default function ScannerScreen({ navigation, route }) {
       headerShadowVisible: false,
       headerTintColor: "#ffffff", //color of title
     });
-  }, [navigation,]);
+  }, [navigation, herbUses]);
 
   useEffect(() => {
     dispatch(herbImageHandler(""));
-
+    dispatch(herbUsesHandler(""));
     dispatch(herbDataHandler(""));
     dispatch(herbBestMatchHandler(""));
   }, []);
@@ -157,6 +157,30 @@ export default function ScannerScreen({ navigation, route }) {
       console.error("Error sending message:", error);
     }
   };
+  const herbUses = async () => {
+    if (match != "") {
+      try {
+        const response = await fetch(`${rootRoute}api/uses`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: `what are the uses and the benefits of ${match} and its name in the philippines, make it concise`,
+          }), // Sending a message in the request body
+        });
+
+        const responseData = await response.json();
+        // console.log("Server response:", responseData.response);
+        // setUses(responseData.response);
+
+        dispatch(herbUsesHandler(responseData.response));
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
+    }
+  };
 
   // const herbBenefits = async () => {
   //   try {
@@ -183,7 +207,7 @@ export default function ScannerScreen({ navigation, route }) {
     if (herbdata.length > 0) {
       setVisibility(!visible);
     }
-
+    herbUses();
   }, [herbdata]);
   useEffect(() => {
     if (herbsUses != "") {
@@ -225,7 +249,7 @@ export default function ScannerScreen({ navigation, route }) {
     });
 
     try {
-      let response = await fetch(`${rootRoute}newimage`, {
+      let response = await fetch(`${rootRoute}image`, {
         method: "POST",
         body: formData,
         headers: {
@@ -237,18 +261,17 @@ export default function ScannerScreen({ navigation, route }) {
         const responseData = await response.json();
         console.log(
           "Image uploaded successfully:",
-          // responseData.data.results[0].gbif.id
+          responseData.data.results[0].gbif.id
         );
-        console.log(responseData);
 
         // console.log(herbdata.species.commonNames);
         // setBestMatch(responseData.data.bestMatch);
 
         // setHerbData(responseData.data.results[0]);
-        // console.log(savedHerbsData);
+        console.log(savedHerbsData);
 
-        // dispatch(herbBestMatchHandler(responseData.data.bestMatch));
-        // dispatch(herbDataHandler(responseData.data.results[0]));
+        dispatch(herbBestMatchHandler(responseData.data.bestMatch));
+        dispatch(herbDataHandler(responseData.data.results[0]));
       } else {
         console.error("Error uploading image:", response.statusText);
       }
@@ -323,7 +346,18 @@ export default function ScannerScreen({ navigation, route }) {
                   )}
                 </View>
               </View>
-
+              <View style={styles.usesContainer}>
+                <Text style={styles.HerbUses}>Herb Uses</Text>
+                <View style={styles.herbUsesContent}>
+                  {herbsUses ? (
+                    <Text
+                      style={{ fontSize: 16, color: backgroundColor.tertiary }}
+                    >{`${herbsUses}`}</Text>
+                  ) : (
+                    <Text>Uses Not Available</Text>
+                  )}
+                </View>
+              </View>
               <View>
                 <TouchableOpacity onPress={saveScannedHerbs}>
                   <Text
