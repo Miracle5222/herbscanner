@@ -4,7 +4,7 @@
     "slug": "herbscanner",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/leaf.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/leaf.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.evelynbihag.herbscanner"
@@ -27,7 +27,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "d0455894-533b-4cc6-bdfb-2b1fb91cd19e"
+        "projectId": "80a96af1-fafb-4c37-8826-1a6d20902820"
       }
     }
   }

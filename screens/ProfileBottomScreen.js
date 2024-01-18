@@ -60,20 +60,20 @@ export default function ProfileScreen({ navigation }) {
   const getFavoritesData = async () => {
     // Ensure that data is available
     if (favorites.length === 0 || savedHerbsData.length === 0) {
-      console.log("Data not available yet");
+      // console.log("Data not available yet");
       return;
     }
 
     let scannedIds = favorites.map(item => item.herbsId);
 
     // Log scannedIds for debugging
-    console.log("Scanned IDs:", scannedIds);
+    // console.log("Scanned IDs:", scannedIds);
 
     // Filter savedHerbsData based on scannedIds
     let filteredData = savedHerbsData.filter(item => scannedIds.includes(item.herbId));
 
     // Log or process the filtered data
-    console.log("Filtered Data favorites:", filteredData);
+    // console.log("Filtered Data favorites:", filteredData);
     setfilteredFavoritesHerbs(filteredData);
     // If you need to do something with the filtered data, you can add your logic here
     // For example, set it to a state variable if you're using React state
@@ -82,7 +82,7 @@ export default function ProfileScreen({ navigation }) {
   const getSavedData = async () => {
     // Ensure that data is available
     if (saveherbs.length === 0 || savedHerbsData.length === 0) {
-      console.log("Data not available yet");
+      // console.log("Data not available yet");
       return;
     }
 

@@ -41,9 +41,9 @@ export default function SettingsScreen({ navigation }) {
           { backgroundColor: backgroundColor.four },
         ]}
       >
-        <TouchableOpacity onPress={() => navigation.push("UserProfileScreen")}>
+        {/* <TouchableOpacity onPress={() => navigation.push("UserProfileScreen")}>
           <Text style={styles.textLabel}>Profile</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       {/* <View
         style={[

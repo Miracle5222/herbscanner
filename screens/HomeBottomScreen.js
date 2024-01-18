@@ -113,7 +113,7 @@ export default function HomeScreen({ navigation }) {
       // }
       const res = await getAllSaveHerbs.json();
       setSaveHerbsData(res.data);
-      
+
       // console.log(res.data);
       dispatch(savedHerbHandler(res.data));
       // console.log(res.data);
@@ -207,9 +207,9 @@ export default function HomeScreen({ navigation }) {
             <Text style={[{ color: backgroundColor.secondary }, styles.user]}>
               Welcome, {userName}
             </Text>
-            <Text style={[{ color: backgroundColor.secondary }, styles.label]}>
+            {/* <Text style={[{ color: backgroundColor.secondary }, styles.label]}>
               Recent Scanned Herbs
-            </Text>
+            </Text> */}
 
             {/* {herbs.length > 0 ? (
               <FlatList
