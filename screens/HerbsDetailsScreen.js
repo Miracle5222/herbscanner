@@ -66,8 +66,8 @@ export default function HerbsDetailsScreen({ navigation, route }) {
   };
 
   const saveScannedHerbs = async () => {
-    console.log(route.params.herbId);
-    console.log(userId);
+    // console.log(route.params.herbId);
+    // console.log(userId);
     try {
       const response = await fetch(`${rootRoute}api/saveScannedHerbs`, {
         method: "POST",
@@ -104,7 +104,7 @@ export default function HerbsDetailsScreen({ navigation, route }) {
       });
 
       const responseData = await response.json(); // Await the response.json() promise
-      console.log(responseData);
+      // console.log(responseData);
       // Alert.alert(responseData?.message);
     } catch (error) {
       // console.error("Error sending message:", error);
@@ -113,7 +113,7 @@ export default function HerbsDetailsScreen({ navigation, route }) {
   };
   useEffect(() => {
     // let data = route.params.medicalUse;
-    console.log(route.params);
+    // console.log(route.params);
     // console.log(route.params.medicalUse[0].medicalUses);
     // console.log(JSON.parse(route.params.howtouse));
     // Assuming data is the parsed JSON data
@@ -128,7 +128,7 @@ export default function HerbsDetailsScreen({ navigation, route }) {
       };
     });
 
-    console.log(parsedData);
+    // console.log(parsedData);
 
     setHowToUse(JSON.parse(route.params.howtouse));
     setMedicalUses(parsedData);

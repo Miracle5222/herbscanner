@@ -93,7 +93,7 @@ export default function HomeScreen({ navigation }) {
     try {
       const response = await fetch(`${rootRoute}api/recentScanned`);
       if (!response.ok) {
-        throw new Error("Failed to fetch recent scanned data");
+        // throw new Error("Failed to fetch recent scanned data");
       }
       const data = await response.json();
       setHerbsData(data);

@@ -63,7 +63,7 @@ export default function LoginScreen({ navigation }) {
         });
 
         const response = await loginResponse.json();
-        console.log(response);
+        // console.log(response);
         if (response?.data?.ok) {
           if (
             response?.data.id != null &&

@@ -105,7 +105,7 @@ export default function ProfileScreen({ navigation }) {
   useEffect(() => {
     getSavedData();
     getFavoritesData();
-  }, [saveherbs, savedHerbsData]);
+  }, [saveherbs, favorites, savedHerbsData]);
 
 
   const removeFromFavorites = async (id) => {
@@ -340,7 +340,7 @@ export default function ProfileScreen({ navigation }) {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
-                    removeFromSavedHerbs(item.herbsId);
+                    removeFromSavedHerbs(item.herbId);
                   }}
                 >
                   <Text style={styles.popUp}>Remove saved Herbs</Text>
@@ -429,7 +429,7 @@ export default function ProfileScreen({ navigation }) {
                 </TouchableOpacity> */}
                 <TouchableOpacity
                   onPress={() => {
-                    removeFromFavorites(item.herbsId.toString());
+                    removeFromFavorites(item.herbId.toString());
                   }}
                 >
                   <Text style={styles.popUp}>Remove from Favorites</Text>
